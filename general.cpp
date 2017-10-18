@@ -6,6 +6,8 @@ general::general(QWidget *parent) :
     ui(new Ui::general)
 {
     ui->setupUi(this);
+    image = new image_process(this);
+    ui->layout_image->addWidget(image);
 }
 
 general::~general()
