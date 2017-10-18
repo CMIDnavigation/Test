@@ -38,7 +38,7 @@ void image_process::slot_cycle_get_images()
             break;
 
         }
-    destroyWindow("original");
+//    destroyWindow("original");
     destroyWindow("gray");
 }
 
@@ -56,6 +56,34 @@ void image_process::slot_get_and_calc_image()
     else
        threshold(gray, gray,25,255,CV_THRESH_BINARY);
 
+    vector<vector<Point>> contours;
+    vector<cv::Vec4i> hierarchy;
+
+   Canny( gray, gray, 1, 3, 3 );
+   findContours( gray, contours, hierarchy, CV_RETR_LIST, CV_CHAIN_APPROX_NONE, Point(0, 0));
+
+   int num_max = 0; double s_max = 0;
+   for (int i = 0; i<contours.size();++i)
+        {
+        Size2f size_now = minAreaRect(contours[i]).size;
+        if (size_now.height*size_now.width>s_max)
+            {
+            num_max = i;
+            s_max = size_now.height*size_now.width;
+            }
+        }
+
+    RotatedRect rect = cv::minAreaRect(contours[num_max]);
+    cv::Point2f vertices2f[4];
+    rect.points(vertices2f);
+    line(original,Point(vertices2f[0].x,vertices2f[0].y),Point(vertices2f[1].x,vertices2f[1].y),
+         cvScalar(0,0,255));
+    line(original,Point(vertices2f[2].x,vertices2f[2].y),Point(vertices2f[1].x,vertices2f[1].y),
+         cvScalar(0,0,255));
+    line(original,Point(vertices2f[3].x,vertices2f[3].y),Point(vertices2f[2].x,vertices2f[2].y),
+         cvScalar(0,0,255));
+    line(original,Point(vertices2f[0].x,vertices2f[0].y),Point(vertices2f[3].x,vertices2f[3].y),
+         cvScalar(0,0,255));
 
 }
 
@@ -77,3 +105,5 @@ float image_process::integral_intensity()
         itt+=gray.at<unsigned char>(x,y);
     return itt/(gray.cols*gray.rows);
 }
+
+

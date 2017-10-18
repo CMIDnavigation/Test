@@ -33,6 +33,7 @@ private:
     cv::Mat original;
     cv::Mat gray;
     float integral_intensity();
+
 };
 
 #endif // IMAGE_PROCESS_H
