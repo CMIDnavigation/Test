@@ -38,7 +38,7 @@ void image_process::slot_cycle_get_images()
             break;
 
         }
-//    destroyWindow("original");
+    destroyWindow("original");
     destroyWindow("gray");
 }
 
