@@ -23,7 +23,6 @@ public:
     ~image_process();
 
 private slots:
-    void on_btn_work_with_image_pressed();
     void slot_cycle_get_images();
 private:
     Ui::image_process *ui;

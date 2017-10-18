@@ -20,10 +20,6 @@ image_process::~image_process()
     delete ui;
 }
 
-void image_process::on_btn_work_with_image_pressed()
-{
-
-}
 
 void image_process::slot_cycle_get_images()
 {
