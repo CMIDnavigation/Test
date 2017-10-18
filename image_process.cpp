@@ -28,9 +28,13 @@ void image_process::on_btn_work_with_image_pressed()
     while (1)
         {
         capture>>original;
-        cv::imshow("original",original);
+        imshow("original",original);
+        cvtColor(original, gray, CV_RGB2GRAY);
         char c = cvWaitKey(33);
 
+
+
+        imshow("gray", gray);
         if (c==27)
             break;
         }
