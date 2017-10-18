@@ -4,8 +4,6 @@
 using namespace std;
 using namespace cv;
 
-
-
 image_process::image_process(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::image_process)
@@ -73,18 +71,20 @@ void image_process::slot_get_and_calc_image()
             }
         }
 
-    RotatedRect rect = cv::minAreaRect(contours[num_max]);
-    cv::Point2f vertices2f[4];
-    rect.points(vertices2f);
-    line(original,Point(vertices2f[0].x,vertices2f[0].y),Point(vertices2f[1].x,vertices2f[1].y),
-         cvScalar(0,0,255));
-    line(original,Point(vertices2f[2].x,vertices2f[2].y),Point(vertices2f[1].x,vertices2f[1].y),
-         cvScalar(0,0,255));
-    line(original,Point(vertices2f[3].x,vertices2f[3].y),Point(vertices2f[2].x,vertices2f[2].y),
-         cvScalar(0,0,255));
-    line(original,Point(vertices2f[0].x,vertices2f[0].y),Point(vertices2f[3].x,vertices2f[3].y),
-         cvScalar(0,0,255));
-
+    if (!contours.empty())
+        {
+        RotatedRect rect = cv::minAreaRect(contours[num_max]);
+        Point2f vertices2f[4];
+        rect.points(vertices2f);
+        line(original,Point(vertices2f[0].x,vertices2f[0].y),Point(vertices2f[1].x,vertices2f[1].y),
+            cvScalar(0,0,255));
+        line(original,Point(vertices2f[2].x,vertices2f[2].y),Point(vertices2f[1].x,vertices2f[1].y),
+            cvScalar(0,0,255));
+        line(original,Point(vertices2f[3].x,vertices2f[3].y),Point(vertices2f[2].x,vertices2f[2].y),
+            cvScalar(0,0,255));
+        line(original,Point(vertices2f[0].x,vertices2f[0].y),Point(vertices2f[3].x,vertices2f[3].y),
+            cvScalar(0,0,255));
+        }
 }
 
 
