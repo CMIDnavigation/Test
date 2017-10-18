@@ -22,6 +22,11 @@ image_process::~image_process()
 
 void image_process::on_btn_work_with_image_pressed()
 {
+
+}
+
+void image_process::slot_cycle_get_images()
+{
     cvNamedWindow("original", CV_WINDOW_AUTOSIZE);
     cvNamedWindow("gray", CV_WINDOW_AUTOSIZE);
 
@@ -31,7 +36,6 @@ void image_process::on_btn_work_with_image_pressed()
         imshow("original",original);
         cvtColor(original, gray, CV_RGB2GRAY);
         char c = cvWaitKey(33);
-
 
 
         imshow("gray", gray);
