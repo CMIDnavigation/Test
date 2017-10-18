@@ -24,6 +24,10 @@ public:
 
 private slots:
     void slot_cycle_get_images();
+
+
+    void on_chk_capture_image_stateChanged(int arg1);
+
 private:
     Ui::image_process *ui;
     cv::VideoCapture capture;

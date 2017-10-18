@@ -26,7 +26,7 @@ void image_process::slot_cycle_get_images()
     cvNamedWindow("original", CV_WINDOW_AUTOSIZE);
     cvNamedWindow("gray", CV_WINDOW_AUTOSIZE);
 
-    while (1)
+    while (ui->chk_capture_image->isChecked())
         {
         capture>>original;
         imshow("original",original);
@@ -40,4 +40,14 @@ void image_process::slot_cycle_get_images()
         }
     destroyWindow("original");
     destroyWindow("gray");
+}
+
+
+
+void image_process::on_chk_capture_image_stateChanged(int arg1)
+{
+    if (arg1)
+        {
+        slot_cycle_get_images();
+        }
 }
