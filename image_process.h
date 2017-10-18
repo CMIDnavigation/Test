@@ -24,8 +24,7 @@ public:
 
 private slots:
     void slot_cycle_get_images();
-
-
+    void slot_get_and_calc_image();
     void on_chk_capture_image_stateChanged(int arg1);
 
 private:
@@ -33,6 +32,7 @@ private:
     cv::VideoCapture capture;
     cv::Mat original;
     cv::Mat gray;
+    float integral_intensity();
 };
 
 #endif // IMAGE_PROCESS_H
