@@ -16,7 +16,7 @@ image_process::image_process(QWidget *parent) :
 
 image_process::~image_process()
 {
-//    cvReleaseCapture(capture);
+    capture.release();
     delete ui;
 }
 
