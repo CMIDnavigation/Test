@@ -11,7 +11,7 @@ image_process::image_process(QWidget *parent) :
     ui(new Ui::image_process)
 {
     ui->setupUi(this);
-    capture = VideoCapture(1);
+    capture = VideoCapture(CV_CAP_ANY);
 }
 
 image_process::~image_process()
