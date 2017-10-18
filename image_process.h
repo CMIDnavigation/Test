@@ -22,9 +22,13 @@ public:
     explicit image_process(QWidget *parent = 0);
     ~image_process();
 
+private slots:
+    void on_btn_work_with_image_pressed();
 private:
     Ui::image_process *ui;
     cv::VideoCapture capture;
+    cv::Mat original;
+    cv::Mat gray;
 };
 
 #endif // IMAGE_PROCESS_H

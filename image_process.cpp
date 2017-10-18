@@ -16,5 +16,24 @@ image_process::image_process(QWidget *parent) :
 
 image_process::~image_process()
 {
+//    cvReleaseCapture(capture);
     delete ui;
+}
+
+void image_process::on_btn_work_with_image_pressed()
+{
+    cvNamedWindow("original", CV_WINDOW_AUTOSIZE);
+    cvNamedWindow("gray", CV_WINDOW_AUTOSIZE);
+
+    while (1)
+        {
+        capture>>original;
+        cv::imshow("original",original);
+        char c = cvWaitKey(33);
+
+        if (c==27)
+            break;
+        }
+    destroyWindow("original");
+    destroyWindow("gray");
 }
