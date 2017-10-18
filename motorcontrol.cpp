@@ -121,7 +121,6 @@ void MotorControl::Init()
     int i;
     const int probe_devices = 0;
     char ximc_version_str[32];
-    int shift = 0;
 
     device_enumeration_t devenum;
 
@@ -188,8 +187,7 @@ void MotorControl::Init()
 
     if ((result = get_status( *device, &state )) != result_ok)
         wprintf( L"error getting status %ls\n", error_string( result ) );
-    else
-        shift = -state.CurPosition;
+
     print_state( &state );
 
     if ((result = get_engine_settings( *device, &engine_settings )) != result_ok)
