@@ -1,9 +1,41 @@
 #include "motorcontrol.h"
-#include "ui_motorcontrol.h"
+
+
+void Ctrl_loop::StartLoop(void)
+{
+    while(this->thread())
+    {
+        if (Device)
+        {
+            int result = get_status( *Device, State);
+            if (result == result_ok)
+                emit SendStatus(State);
+            else
+                emit ConnectionError();
+            if (State->CurSpeed == 0 && Ready == false)
+            {
+                Ready = true;
+                emit MoveDone();
+            }
+
+        }
+        QThread::msleep(200);
+    }
+}
+
+
+void Ctrl_loop::AdjustAngle(float angle)
+{
+    command_zero( *Device );
+    int IntAngle = (int)(angle*100);
+    command_move( *Device, IntAngle, 0 );
+    Ready = false;
+}
 
 MotorControl::MotorControl(QWidget *parent) :
     QWidget(parent),
-    ui(new Ui::MotorControl)
+    ui(new Ui::MotorControl),
+    LogBox(new Ui::Dialog)
 {
     ui->setupUi(this);
 
@@ -11,13 +43,51 @@ MotorControl::MotorControl(QWidget *parent) :
     connect(this, NoMotorConnection,this, NoMotorConnectionProcess );
     connect(this, MotorConnectionOK,this, MotorConnectionOKProcess );
 
+    QThread *hThread = new QThread();
+    ControlLoop = new Ctrl_loop( Device );
+    connect(hThread, QThread::started, ControlLoop, Ctrl_loop::StartLoop);
+    connect(ControlLoop, Ctrl_loop::SendStatus, this, UpdateStatus );
+    connect(ControlLoop, Ctrl_loop::ConnectionError, this, NoMotorConnection );
+    connect(this, MotorConnectionOK,this, MotorConnectionOKProcess );
+    ControlLoop->moveToThread(hThread);
+    hThread->start();
+
+    LogDialogBox = new QDialog;
+    LogBox->setupUi(LogDialogBox);
+
+    connect( LogBox->btnExit, QPushButton::pressed, this, CloseLogDialog);
+    connect( this, AppendTextToLog, LogBox->LogTextWindow, QTextBrowser::append);
 }
 
 MotorControl::~MotorControl()
 {
     delete ui;
+    delete LogBox;
 }
 
+
+void MotorControl::CloseLogDialog()
+{
+    LogDialogBox->hide();
+}
+
+void MotorControl::UpdateStatus(status_t * Status)
+{
+    ui->textBrowser->clear();
+    ui->textBrowser->append("rpm: " + QString::number( Status->CurSpeed));
+    ui->textBrowser->append("pos: " + QString::number( Status->CurPosition));
+    ui->textBrowser->append("upwr: " + QString::number( Status->Upwr));
+    ui->textBrowser->append("ipwr: " + QString::number( Status->Ipwr));
+    ui->textBrowser->append("flags: " + QString::number( Status->Flags));
+    ui->textBrowser->append("mvsts: " + QString::number( Status->MvCmdSts));
+
+    if (Status->Flags & STATE_ALARM)
+        ui->textBrowser->append("ALARM!!!");
+    if (Status->Flags & STATE_ERRC)
+        ui->textBrowser->append("ERRC");
+    if (Status->Flags & STATE_ERRD)
+        ui->textBrowser->append("ERRD");
+}
 
 void MotorControl::print_state (status_t* state)
 {
@@ -214,6 +284,7 @@ void MotorControl::InitMotorDrive()
         i++;
 
     command_zero( *Device );
+    emit AppendTextToLog("Connected motor drive" );
 
     emit MotorConnectionOK();
     return;
@@ -221,6 +292,8 @@ void MotorControl::InitMotorDrive()
 
 void MotorControl::NoMotorConnectionProcess()
 {
+    ui->textBrowser->clear();
+    ui->textBrowser->append("No motor drive connected");
     ui->checkBox->setChecked(0);
 }
 void MotorControl::MotorConnectionOKProcess()
@@ -277,4 +350,9 @@ void MotorControl::on_btnGetStatus_clicked()
     }
     else
         ui->textBrowser->append("No Device connected");
+}
+
+void MotorControl::on_btnOpenLog_clicked()
+{
+    LogDialogBox->show();
 }
