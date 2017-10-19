@@ -25,6 +25,9 @@ class MotorControl : public QWidget
     Q_OBJECT
 
 public:
+
+    device_t * Device;
+
     explicit MotorControl(QWidget *parent = 0);
     ~MotorControl();
 
@@ -34,10 +37,32 @@ public:
 
     char* widestr_to_str (const wchar_t* str);
 
-    void Init();
+    void InitMotorDrive();
+
+signals:
+    void NoMotorConnection();
+    void MotorConnectionOK();
+
+private slots:
+    void NoMotorConnectionProcess();
+    void MotorConnectionOKProcess();
+    void on_btnInitDrive_clicked();
+
+    void on_btnHomeDrive_clicked();
+
+    void on_btnZeroDrive_clicked();
+
+    void on_StartFixedPosMove_clicked();
+
+    void on_btnRight_clicked();
+
+    void on_btnLeft_clicked();
+
+    void on_btnStopMotor_clicked();
+
+    void on_btnGetStatus_clicked();
 
 private:
-    device_t * device;
     Ui::MotorControl *ui;
 };
 

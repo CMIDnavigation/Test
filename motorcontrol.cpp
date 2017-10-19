@@ -7,6 +7,10 @@ MotorControl::MotorControl(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    Device = new device_t;
+    connect(this, NoMotorConnection,this, NoMotorConnectionProcess );
+    connect(this, MotorConnectionOK,this, MotorConnectionOKProcess );
+
 }
 
 MotorControl::~MotorControl()
@@ -108,7 +112,7 @@ void XIMC_CALLCONV my_logging_callback(int loglevel, const wchar_t* message, voi
 }
 
 
-void MotorControl::Init()
+void MotorControl::InitMotorDrive()
 {
     engine_settings_t engine_settings;
     engine_settings_calb_t engine_settings_calb;
@@ -121,7 +125,6 @@ void MotorControl::Init()
     int i;
     const int probe_devices = 0;
     char ximc_version_str[32];
-
     device_enumeration_t devenum;
 
     //Inherit system locale
@@ -155,6 +158,7 @@ void MotorControl::Init()
 
     if (names_count == 0)
     {
+        emit NoMotorConnection();
         wprintf( L"No devices found\n" );
         return;
     }
@@ -165,32 +169,33 @@ void MotorControl::Init()
 
     wprintf( L"\n\nOpening device...\n\n");
 
-    *device = open_device( device_name );
-    if (*device == device_undefined)
+    *Device = open_device( device_name );
+
+    if (*Device == device_undefined)
     {
         wprintf( L"error opening device\n" );
         return;
     }
 
-    if ((result = get_status( *device, &state )) != result_ok)
+    if ((result = get_status( *Device, &state )) != result_ok)
         wprintf( L"error getting status: %ls\n", error_string( result ) );
     print_state( &state );
 
-    if ((result = get_device_information( *device, &di )) != result_ok)
+    if ((result = get_device_information( *Device, &di )) != result_ok)
         wprintf( L"error getting di: %ls\n", error_string( result ) );
     wprintf( L"DI: manufacturer: %hs, id %hs, product %hs. Ver: %d.%d.%d\n",
             di.Manufacturer, di.ManufacturerId, di.ProductDescription,
             di.Major, di.Minor, di.Release);
 
-    if ((result = command_zero( *device )) != result_ok)
+    if ((result = command_zero( *Device )) != result_ok)
         wprintf( L"error zeroing: %ls\n", error_string( result ) );
 
-    if ((result = get_status( *device, &state )) != result_ok)
+    if ((result = get_status( *Device, &state )) != result_ok)
         wprintf( L"error getting status %ls\n", error_string( result ) );
 
     print_state( &state );
 
-    if ((result = get_engine_settings( *device, &engine_settings )) != result_ok)
+    if ((result = get_engine_settings( *Device, &engine_settings )) != result_ok)
         wprintf( L"error getting engine settings %ls\n", error_string( result ) );
 
     wprintf( L"engine: voltage %d current %d speed %d\n",
@@ -198,12 +203,78 @@ void MotorControl::Init()
 
     calibration.A = 1;
     calibration.MicrostepMode = MICROSTEP_MODE_FULL;
-    if ((result = get_engine_settings_calb( *device, &engine_settings_calb, &calibration )) != result_ok)
+    if ((result = get_engine_settings_calb( *Device, &engine_settings_calb, &calibration )) != result_ok)
         wprintf( L"error getting engine calb settings %ls\n", error_string( result ) );
 
     wprintf( L"engine calb: voltage %d current %d speed %f\n",
         engine_settings_calb.NomVoltage, engine_settings_calb.NomCurrent, engine_settings_calb.NomSpeed );
 
+
+    for (int i = 0; i < 100000; i++);
+        i++;
+
+    command_zero( *Device );
+
+    emit MotorConnectionOK();
     return;
 }
 
+void MotorControl::NoMotorConnectionProcess()
+{
+    ui->checkBox->setChecked(0);
+}
+void MotorControl::MotorConnectionOKProcess()
+{
+    ui->checkBox->setChecked(1);
+}
+void MotorControl::on_btnInitDrive_clicked()
+{
+    InitMotorDrive();
+}
+
+void MotorControl::on_btnHomeDrive_clicked()
+{
+    command_home( *Device );
+}
+
+void MotorControl::on_btnZeroDrive_clicked()
+{
+    command_zero( *Device );
+}
+
+void MotorControl::on_StartFixedPosMove_clicked()
+{
+    command_zero( *Device );
+    int angle = ui->doubleSpinBox->value()*100;
+    command_move( *Device, angle, 0 );
+}
+
+void MotorControl::on_btnRight_clicked()
+{
+    command_right( *Device );
+}
+
+void MotorControl::on_btnLeft_clicked()
+{
+    command_left( *Device );
+}
+
+void MotorControl::on_btnStopMotor_clicked()
+{
+    command_stop( *Device );
+}
+
+void MotorControl::on_btnGetStatus_clicked()
+{
+    if (Device)
+    {
+        status_t state;
+        int result = get_status( *Device, &state);
+        if (result == result_ok)
+            ui->textBrowser->append("Status");
+        else
+            ui->textBrowser->append("Get Status Error");
+    }
+    else
+        ui->textBrowser->append("No Device connected");
+}
