@@ -28,12 +28,16 @@ private slots:
     void on_chk_capture_image_stateChanged(int arg1);
 
 private:
+    const float need_andle = 0;
+    bool send_angle_to_rotate = false;
     Ui::image_process *ui;
     cv::VideoCapture capture;
     cv::Mat original;
     cv::Mat gray;
     cv::Mat ufter_plus;
     float integral_intensity(const cv::Mat &Mat_to_count);
+signals:
+    rotate_motor(float angle);
 
 };
 

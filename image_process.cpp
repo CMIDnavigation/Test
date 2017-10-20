@@ -99,11 +99,26 @@ void image_process::slot_get_and_calc_image()
     line(ufter_plus,Point(point_rect[0].x,point_rect[0].y),Point(point_rect[3].x,point_rect[3].y),
             cvScalar(255,255,255),3);
     double rect_before = integral_intensity(ufter_plus);
+        if (rect_before==0) return;
     ufter_plus&=gray;
+
     double rect_ufter = integral_intensity(ufter_plus);
     float before_ufter = rect_ufter/rect_before;
-    QString to_form; to_form.setNum(before_ufter);
-    ui->lineEdit->setText(to_form);
+    if (before_ufter>0.2)
+        {
+        QString to_form; to_form.setNum(rect.angle);
+        ui->lineEdit->setText(to_form);
+
+        line(original,Point(point_rect[0].x,point_rect[0].y),Point(point_rect[1].x,point_rect[1].y),
+            cvScalar(0,0,255),3);
+        line(original,Point(point_rect[2].x,point_rect[2].y),Point(point_rect[1].x,point_rect[1].y),
+                cvScalar(0,0,255),3);
+        line(original,Point(point_rect[3].x,point_rect[3].y),Point(point_rect[2].x,point_rect[2].y),
+                cvScalar(0,0,255),3);
+        line(original,Point(point_rect[0].x,point_rect[0].y),Point(point_rect[3].x,point_rect[3].y),
+                cvScalar(0,0,255),3);
+
+        }
     //canny&=rect_now;
 
 }
