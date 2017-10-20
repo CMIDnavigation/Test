@@ -31,9 +31,9 @@
       </widget>
      </item>
      <item>
-      <widget class="QCheckBox" name="chk_rotate_send">
+      <widget class="QPushButton" name="btn_check_position">
        <property name="text">
-        <string>Выслать угол</string>
+        <string>Позиционировать</string>
        </property>
       </widget>
      </item>

@@ -27,7 +27,9 @@ private slots:
     void slot_get_and_calc_image();
     void on_chk_capture_image_stateChanged(int arg1);
 
-    void on_chk_rotate_send_stateChanged(int arg1);
+
+
+    void on_btn_check_position_pressed();
 
 private:
     const float need_andle = 0;

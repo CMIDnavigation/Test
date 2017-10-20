@@ -159,11 +159,8 @@ image_process::slot_command_to_motor()
 
 
 
-void image_process::on_chk_rotate_send_stateChanged(int arg1)
+
+void image_process::on_btn_check_position_pressed()
 {
-    if (arg1)
-        {
-        slot_command_to_motor();
-        ui->chk_rotate_send->setChecked(false);
-        }
+    slot_command_to_motor();
 }
