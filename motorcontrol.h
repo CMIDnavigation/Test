@@ -64,14 +64,14 @@ public:
 
     void InitMotorDrive();
     void printStateToStr (QString string,  status_t* state);
-    const QString error_string (result_t result)
+    const wchar_t * error_string (result_t result)
     {
         switch (result)
         {
-            case result_error:				return "error";
-            case result_not_implemented:	return "not implemented";
-            case result_nodevice:			return "no device";
-            default:						return "success";
+            case result_error:				return L"error";
+            case result_not_implemented:	return L"not implemented";
+            case result_nodevice:			return L"no device";
+            default:						return L"success";
         }
     }
 

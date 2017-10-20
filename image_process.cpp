@@ -25,16 +25,14 @@ void image_process::slot_cycle_get_images()
     cvNamedWindow("gray", CV_WINDOW_AUTOSIZE);
     cvNamedWindow("Canny", CV_WINDOW_AUTOSIZE);
 
-
-
-
     while (ui->chk_capture_image->isChecked())
-        {
+    {
         slot_get_and_calc_image();
-        {//Показываем
-        imshow("original",original);
-        imshow("gray", gray);
-        imshow("Canny", ufter_plus);
+        {
+            //Показываем
+            imshow("original",original);
+            imshow("gray", gray);
+            imshow("Canny", ufter_plus);
         }
 
         char c = cvWaitKey(33);
@@ -42,7 +40,7 @@ void image_process::slot_cycle_get_images()
         if (c==27)
             break;
 
-        }
+    }
     ui->chk_capture_image->setChecked(false);
     destroyWindow("original");
     destroyWindow("gray");
@@ -53,6 +51,7 @@ void image_process::slot_get_and_calc_image()
 {
     capture>>original;
     cvtColor(original, gray, CV_RGB2GRAY);
+    ufter_plus = Mat(gray.rows,gray.cols,CV_8UC1, Scalar(0,0,0));
     cv::blur(gray,gray,cv::Size(3,3),cv::Point(-1,-1));
 
     float integral_gray = integral_intensity(gray);
@@ -87,9 +86,6 @@ void image_process::slot_get_and_calc_image()
     RotatedRect rect = cv::minAreaRect(contours[num_max]);
     Point2f point_rect[4]; rect.points(point_rect);
 
-
-    ufter_plus = Mat(gray.rows,gray.cols,CV_8UC1, Scalar(0,0,0));
-
     line(ufter_plus,Point(point_rect[0].x,point_rect[0].y),Point(point_rect[1].x,point_rect[1].y),
         cvScalar(255,255,255),3);
     line(ufter_plus,Point(point_rect[2].x,point_rect[2].y),Point(point_rect[1].x,point_rect[1].y),
@@ -99,13 +95,12 @@ void image_process::slot_get_and_calc_image()
     line(ufter_plus,Point(point_rect[0].x,point_rect[0].y),Point(point_rect[3].x,point_rect[3].y),
             cvScalar(255,255,255),3);
     double rect_before = integral_intensity(ufter_plus);
+    if (rect_before==0) return;
     ufter_plus&=gray;
     double rect_ufter = integral_intensity(ufter_plus);
     float before_ufter = rect_ufter/rect_before;
     QString to_form; to_form.setNum(before_ufter);
     ui->lineEdit->setText(to_form);
-    //canny&=rect_now;
-
 }
 
 
