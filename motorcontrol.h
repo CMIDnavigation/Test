@@ -22,10 +22,6 @@ namespace Ui {
 class MotorControl;
 }
 
-void XIMC_CALLCONV my_logging_callback(int loglevel, const wchar_t* message, void* user_data);
-const wchar_t* loglevel_string (int loglevel);
-
-
 class Ctrl_loop : public QObject
 {
     Q_OBJECT
@@ -66,13 +62,18 @@ public:
     explicit MotorControl(QWidget *parent = 0);
     ~MotorControl();
 
-    void print_state (status_t* state);
-    void string_print_state (wchar_t * string,  status_t* state);
-    const wchar_t* error_string (result_t result);
-
-    char* widestr_to_str (const wchar_t* str);
-
     void InitMotorDrive();
+    void printStateToStr (QString string,  status_t* state);
+    const QString error_string (result_t result)
+    {
+        switch (result)
+        {
+            case result_error:				return "error";
+            case result_not_implemented:	return "not implemented";
+            case result_nodevice:			return "no device";
+            default:						return "success";
+        }
+    }
 
 signals:
     void NoMotorConnection();
@@ -93,7 +94,6 @@ private slots:
     void on_btnLeft_clicked();
     void on_btnStopMotor_clicked();
     void on_btnGetStatus_clicked();
-
     void on_btnOpenLog_clicked();
 
 private:
