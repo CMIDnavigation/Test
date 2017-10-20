@@ -46,7 +46,7 @@ signals:
     void MoveDone( void );
 public slots:
     void StartLoop(void);
-    void AdjustAngle(float angle);
+    void GetAdjustAngle(float angle);
 };
 
 class MotorControl : public QWidget
