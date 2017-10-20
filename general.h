@@ -4,6 +4,8 @@
 #include <QMainWindow>
 #include "motorcontrol.h"
 #include "image_process.h"
+#include <QCloseEvent>
+#include <QEvent>
 
 namespace Ui {
 class general;
@@ -18,8 +20,11 @@ public:
     ~general();
     image_process* image;
     MotorControl* motor;
+protected :
+    virtual void closeEvent(QCloseEvent* event);
 private:
     Ui::general *ui;
+
 };
 
 #endif // GENERAL_H

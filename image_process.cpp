@@ -10,6 +10,7 @@ image_process::image_process(QWidget *parent) :
 {
     ui->setupUi(this);
     capture = VideoCapture(CV_CAP_ANY);
+
 }
 
 image_process::~image_process()
@@ -17,6 +18,8 @@ image_process::~image_process()
     capture.release();
     delete ui;
 }
+
+
 
 
 void image_process::slot_cycle_get_images()
@@ -138,8 +141,9 @@ void image_process::on_chk_capture_image_stateChanged(int arg1)
     if (arg1)
         {
         slot_cycle_get_images();
-        }
+    }
 }
+
 
 float image_process::integral_intensity(const Mat &Mat_to_count)
 {
@@ -150,7 +154,7 @@ float image_process::integral_intensity(const Mat &Mat_to_count)
     return itt/(Mat_to_count.cols*Mat_to_count.rows);
 }
 
-image_process::slot_command_to_motor()
+void image_process::slot_command_to_motor()
 {
     send_angle_to_rotate = true;
 }
@@ -159,11 +163,15 @@ image_process::slot_command_to_motor()
 
 
 
-void image_process::on_chk_rotate_send_stateChanged(int arg1)
+
+void image_process::on_btn_check_position_pressed()
 {
-    if (arg1)
-        {
-        slot_command_to_motor();
-        ui->chk_rotate_send->setChecked(false);
-        }
+    slot_command_to_motor();
 }
+
+void image_process::slot_close()
+{
+    ui->chk_capture_image->setChecked(false);
+}
+
+

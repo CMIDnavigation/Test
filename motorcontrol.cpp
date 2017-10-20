@@ -55,6 +55,7 @@ MotorControl::MotorControl(QWidget *parent) :
 
 
     hThread->start();
+    //hThread->run();
 
     emit SendAngleFromCam(20);
     LogDialogBox = new QDialog;

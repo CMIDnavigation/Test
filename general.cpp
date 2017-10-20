@@ -12,11 +12,18 @@ general::general(QWidget *parent) :
     connect(image,image_process::rotate_motor, motor, MotorControl::GetAngleFromCam);
     connect(motor, MotorControl::SendMoveDone, image, image_process::slot_command_to_motor );
 
+
     ui->layout_image->addWidget(image);
     ui->layout_motor->addWidget(motor);
+
 }
 
 general::~general()
 {
     delete ui;
+}
+
+void general::closeEvent(QCloseEvent *event)
+{
+    image->slot_close();
 }
