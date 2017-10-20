@@ -31,7 +31,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QCheckBox" name="checkBox_3">
+      <widget class="QCheckBox" name="chk_rotate_send">
        <property name="text">
         <string>Выслать угол</string>
        </property>

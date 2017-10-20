@@ -98,28 +98,36 @@ void image_process::slot_get_and_calc_image()
 
     if (rect_before==0) return;
 
-    ufter_plus&=gray;
+    ufter_plus&=gray;//Сложение картинок
 
     double rect_ufter = integral_intensity(ufter_plus);
     float before_ufter = rect_ufter/rect_before;
 
-    if (before_ufter>0.2)
+    if (before_ufter>0.18)//Эмперически)
         {
         QString to_form; to_form.setNum(rect.angle);
         ui->lineEdit->setText(to_form);
 
         line(original,Point(point_rect[0].x,point_rect[0].y),Point(point_rect[1].x,point_rect[1].y),
-            cvScalar(0,0,255),3);
+            cvScalar(0,0,255),1);
         line(original,Point(point_rect[2].x,point_rect[2].y),Point(point_rect[1].x,point_rect[1].y),
-                cvScalar(0,0,255),3);
+                cvScalar(0,0,255),1);
         line(original,Point(point_rect[3].x,point_rect[3].y),Point(point_rect[2].x,point_rect[2].y),
-                cvScalar(0,0,255),3);
+                cvScalar(0,0,255),1);
         line(original,Point(point_rect[0].x,point_rect[0].y),Point(point_rect[3].x,point_rect[3].y),
-                cvScalar(0,0,255),3);
+                cvScalar(0,0,255),1);
 
+        if (send_angle_to_rotate)
+            {
+            send_angle_to_rotate = false;
+            if ((need_andle - rect.angle)>1.0)
+                {
+                emit rotate_motor(need_andle - rect.angle);
+                }
+            else
+                {}
+            }
         }
-    QString to_form; to_form.setNum(before_ufter);
-    ui->lineEdit->setText(to_form);
 
 }
 
@@ -142,4 +150,20 @@ float image_process::integral_intensity(const Mat &Mat_to_count)
     return itt/(Mat_to_count.cols*Mat_to_count.rows);
 }
 
+image_process::slot_command_to_motor()
+{
+    send_angle_to_rotate = true;
+}
 
+
+
+
+
+void image_process::on_chk_rotate_send_stateChanged(int arg1)
+{
+    if (arg1)
+        {
+        slot_command_to_motor();
+        ui->chk_rotate_send->setChecked(false);
+        }
+}

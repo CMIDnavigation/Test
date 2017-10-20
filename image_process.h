@@ -27,6 +27,8 @@ private slots:
     void slot_get_and_calc_image();
     void on_chk_capture_image_stateChanged(int arg1);
 
+    void on_chk_rotate_send_stateChanged(int arg1);
+
 private:
     const float need_andle = 0;
     bool send_angle_to_rotate = false;
@@ -36,6 +38,8 @@ private:
     cv::Mat gray;
     cv::Mat ufter_plus;
     float integral_intensity(const cv::Mat &Mat_to_count);
+public slots :
+    slot_command_to_motor();
 signals:
     rotate_motor(float angle);
 
