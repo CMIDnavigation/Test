@@ -46,7 +46,7 @@ signals:
     void MoveDone( void );
 public slots:
     void StartLoop(void);
-    void GetAdjustAngle(float angle);
+    void GetAngleFromCam(float angle);
 };
 
 class MotorControl : public QWidget
@@ -79,12 +79,17 @@ signals:
     void NoMotorConnection();
     void MotorConnectionOK();
     void AppendTextToLog(const QString &String);
+    void SendMoveDone();
+    void SendAngleFromCam(float Angle);
 
+public slots:
+    void GetAngleFromCam( float Angle);
 private slots:
     void NoMotorConnectionProcess();
     void MotorConnectionOKProcess();
     void UpdateStatus(status_t * State);
     void CloseLogDialog();
+    void GetMoveDone();
 
     void on_btnInitDrive_clicked();
     void on_btnHomeDrive_clicked();

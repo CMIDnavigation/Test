@@ -22,10 +22,10 @@ void Ctrl_loop::StartLoop(void)
         QThread::msleep(200);
     }
 }
-void Ctrl_loop::GetAdjustAngle(float angle)
+void Ctrl_loop::GetAngleFromCam(float Angle)
 {
     command_zero( *Device );
-    int IntAngle = (int)(angle*100);
+    int IntAngle = (int)(Angle*100);
     command_move( *Device, IntAngle, 0 );
     Ready = false;
 }
@@ -41,15 +41,22 @@ MotorControl::MotorControl(QWidget *parent) :
     connect(this, NoMotorConnection,this, NoMotorConnectionProcess );
     connect(this, MotorConnectionOK,this, MotorConnectionOKProcess );
 
-    QThread *hThread = new QThread();
+    QThread *hThread = new QThread(this);
     ControlLoop = new Ctrl_loop( Device );
+    ControlLoop->moveToThread(hThread);
+
     connect(hThread, QThread::started, ControlLoop, Ctrl_loop::StartLoop);
     connect(ControlLoop, Ctrl_loop::SendStatus, this, UpdateStatus );
-    connect(ControlLoop, Ctrl_loop::ConnectionError, this, NoMotorConnection );
     connect(this, MotorConnectionOK,this, MotorConnectionOKProcess );
-    ControlLoop->moveToThread(hThread);
+    connect(ControlLoop, Ctrl_loop::ConnectionError, this, NoMotorConnection );
+    connect(ControlLoop, Ctrl_loop::MoveDone, this, GetMoveDone );
+    //connect(this, SendAngleFromCam, ControlLoop, Ctrl_loop::GetAngleFromCam);
+    connect(this,SIGNAL(SendAngleFromCam(float)),ControlLoop,SLOT(GetAngleFromCam(float)));
+
+
     hThread->start();
 
+    emit SendAngleFromCam(20);
     LogDialogBox = new QDialog;
     LogBox->setupUi(LogDialogBox);
 
@@ -62,7 +69,14 @@ MotorControl::~MotorControl()
     delete ui;
     delete LogBox;
 }
-
+void MotorControl::GetAngleFromCam( float Angle)
+{
+     ControlLoop->GetAngleFromCam(Angle);
+}
+void MotorControl::GetMoveDone()
+{
+     emit SendMoveDone();
+}
 
 void MotorControl::CloseLogDialog()
 {
