@@ -22,7 +22,7 @@ void Ctrl_loop::StartLoop(void)
         QThread::msleep(200);
     }
 }
-void Ctrl_loop::AdjustAngle(float angle)
+void Ctrl_loop::GetAdjustAngle(float angle)
 {
     command_zero( *Device );
     int IntAngle = (int)(angle*100);
