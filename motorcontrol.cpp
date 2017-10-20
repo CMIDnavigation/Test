@@ -32,7 +32,8 @@ void Ctrl_loop::AdjustAngle(float angle)
 MotorControl::MotorControl(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::MotorControl),
-    LogBox(new Ui::Dialog)
+    LogBox(new Ui::Dialog),
+    Device(0)
 {
     ui->setupUi(this);
 
@@ -208,11 +209,15 @@ void MotorControl::InitMotorDrive()
 
     wprintf( L"\n\nOpening device...\n\n");
 
+    if (Device != 0) close_device( Device );
+
     *Device = open_device( device_name );
 
     if (*Device == device_undefined)
     {
+        Device = 0;
         wprintf( L"error opening device\n" );
+        emit NoMotorConnection();
         return;
     }
 
