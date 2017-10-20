@@ -46,7 +46,7 @@ void image_process::slot_get_and_calc_image()
     cvtColor(original, gray, CV_RGB2GRAY);
     cv::blur(gray,gray,cv::Size(3,3),cv::Point(-1,-1));
 
-    float integral_gray = integral_intensity();
+    float integral_gray = integral_intensity(gray);
     if (integral_gray>170)
        threshold(gray, gray,60,255,CV_THRESH_BINARY);
     else if (integral_gray>100)
@@ -71,20 +71,23 @@ void image_process::slot_get_and_calc_image()
             }
         }
 
-    if (!contours.empty())
-        {
-        RotatedRect rect = cv::minAreaRect(contours[num_max]);
-        Point2f vertices2f[4];
-        rect.points(vertices2f);
-        line(original,Point(vertices2f[0].x,vertices2f[0].y),Point(vertices2f[1].x,vertices2f[1].y),
+    if (contours.empty())
+        return;
+
+
+    RotatedRect rect = cv::minAreaRect(contours[num_max]);
+    Point2f vertices2f[4];
+
+    rect.points(vertices2f);
+    line(original,Point(vertices2f[0].x,vertices2f[0].y),Point(vertices2f[1].x,vertices2f[1].y),
+        cvScalar(0,0,255));
+    line(original,Point(vertices2f[2].x,vertices2f[2].y),Point(vertices2f[1].x,vertices2f[1].y),
             cvScalar(0,0,255));
-        line(original,Point(vertices2f[2].x,vertices2f[2].y),Point(vertices2f[1].x,vertices2f[1].y),
+    line(original,Point(vertices2f[3].x,vertices2f[3].y),Point(vertices2f[2].x,vertices2f[2].y),
             cvScalar(0,0,255));
-        line(original,Point(vertices2f[3].x,vertices2f[3].y),Point(vertices2f[2].x,vertices2f[2].y),
+    line(original,Point(vertices2f[0].x,vertices2f[0].y),Point(vertices2f[3].x,vertices2f[3].y),
             cvScalar(0,0,255));
-        line(original,Point(vertices2f[0].x,vertices2f[0].y),Point(vertices2f[3].x,vertices2f[3].y),
-            cvScalar(0,0,255));
-        }
+
 }
 
 
@@ -97,13 +100,13 @@ void image_process::on_chk_capture_image_stateChanged(int arg1)
         }
 }
 
-float image_process::integral_intensity()
+float image_process::integral_intensity(const Mat &Mat_to_count)
 {
     long double itt = 0;
-    for (int x = 0; x<gray.rows;++x)
-        for (int y = 0; y<gray.cols;++y)
-        itt+=gray.at<unsigned char>(x,y);
-    return itt/(gray.cols*gray.rows);
+    for (int x = 0; x<Mat_to_count.rows;++x)
+        for (int y = 0; y<Mat_to_count.cols;++y)
+        itt+=Mat_to_count.at<unsigned char>(x,y);
+    return itt/(Mat_to_count.cols*Mat_to_count.rows);
 }
 
 

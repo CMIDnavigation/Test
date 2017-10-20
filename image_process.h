@@ -32,7 +32,7 @@ private:
     cv::VideoCapture capture;
     cv::Mat original;
     cv::Mat gray;
-    float integral_intensity();
+    float integral_intensity(const cv::Mat &Mat_to_count);
 
 };
 
