@@ -23,21 +23,30 @@ void image_process::slot_cycle_get_images()
 {
     cvNamedWindow("original", CV_WINDOW_AUTOSIZE);
     cvNamedWindow("gray", CV_WINDOW_AUTOSIZE);
+    cvNamedWindow("Canny", CV_WINDOW_AUTOSIZE);
+
+
+
 
     while (ui->chk_capture_image->isChecked())
         {
         slot_get_and_calc_image();
-        char c = cvWaitKey(33);
         {//Показываем
         imshow("original",original);
         imshow("gray", gray);
+        imshow("Canny", ufter_plus);
         }
+
+        char c = cvWaitKey(33);
+
         if (c==27)
             break;
 
         }
+    ui->chk_capture_image->setChecked(false);
     destroyWindow("original");
     destroyWindow("gray");
+    destroyWindow("Canny");
 }
 
 void image_process::slot_get_and_calc_image()
@@ -58,6 +67,7 @@ void image_process::slot_get_and_calc_image()
     vector<cv::Vec4i> hierarchy;
 
    Canny( gray, gray, 1, 3, 3 );
+
    findContours( gray, contours, hierarchy, CV_RETR_LIST, CV_CHAIN_APPROX_NONE, Point(0, 0));
 
    int num_max = 0; double s_max = 0;
@@ -74,19 +84,27 @@ void image_process::slot_get_and_calc_image()
     if (contours.empty())
         return;
 
-
     RotatedRect rect = cv::minAreaRect(contours[num_max]);
-    Point2f vertices2f[4];
+    Point2f point_rect[4]; rect.points(point_rect);
 
-    rect.points(vertices2f);
-    line(original,Point(vertices2f[0].x,vertices2f[0].y),Point(vertices2f[1].x,vertices2f[1].y),
-        cvScalar(0,0,255));
-    line(original,Point(vertices2f[2].x,vertices2f[2].y),Point(vertices2f[1].x,vertices2f[1].y),
-            cvScalar(0,0,255));
-    line(original,Point(vertices2f[3].x,vertices2f[3].y),Point(vertices2f[2].x,vertices2f[2].y),
-            cvScalar(0,0,255));
-    line(original,Point(vertices2f[0].x,vertices2f[0].y),Point(vertices2f[3].x,vertices2f[3].y),
-            cvScalar(0,0,255));
+
+    ufter_plus = Mat(gray.rows,gray.cols,CV_8UC1, Scalar(0,0,0));
+
+    line(ufter_plus,Point(point_rect[0].x,point_rect[0].y),Point(point_rect[1].x,point_rect[1].y),
+        cvScalar(255,255,255),3);
+    line(ufter_plus,Point(point_rect[2].x,point_rect[2].y),Point(point_rect[1].x,point_rect[1].y),
+            cvScalar(255,255,255),3);
+    line(ufter_plus,Point(point_rect[3].x,point_rect[3].y),Point(point_rect[2].x,point_rect[2].y),
+            cvScalar(255,255,255),3);
+    line(ufter_plus,Point(point_rect[0].x,point_rect[0].y),Point(point_rect[3].x,point_rect[3].y),
+            cvScalar(255,255,255),3);
+    double rect_before = integral_intensity(ufter_plus);
+    ufter_plus&=gray;
+    double rect_ufter = integral_intensity(ufter_plus);
+    float before_ufter = rect_ufter/rect_before;
+    QString to_form; to_form.setNum(before_ufter);
+    ui->lineEdit->setText(to_form);
+    //canny&=rect_now;
 
 }
 
