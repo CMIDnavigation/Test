@@ -22,8 +22,6 @@ void Ctrl_loop::StartLoop(void)
         QThread::msleep(200);
     }
 }
-
-
 void Ctrl_loop::AdjustAngle(float angle)
 {
     command_zero( *Device );
@@ -31,7 +29,6 @@ void Ctrl_loop::AdjustAngle(float angle)
     command_move( *Device, IntAngle, 0 );
     Ready = false;
 }
-
 MotorControl::MotorControl(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::MotorControl),
@@ -58,9 +55,9 @@ MotorControl::MotorControl(QWidget *parent) :
     connect( LogBox->btnExit, QPushButton::pressed, this, CloseLogDialog);
     connect( this, AppendTextToLog, LogBox->LogTextWindow, QTextBrowser::append);
 }
-
 MotorControl::~MotorControl()
 {
+    command_stop( *Device );
     delete ui;
     delete LogBox;
 }
@@ -70,9 +67,22 @@ void MotorControl::CloseLogDialog()
 {
     LogDialogBox->hide();
 }
-
 void MotorControl::UpdateStatus(status_t * Status)
 {
+    wprintf( L" rpm: %d", Status->CurSpeed );
+    wprintf( L" pos: %d", Status->CurPosition );
+    wprintf( L" upwr: %d", Status->Upwr );
+    wprintf( L" ipwr: %d", Status->Ipwr );
+    wprintf( L" flags: %x", Status->Flags );
+    wprintf( L" mvsts: %x", Status->MvCmdSts );
+    if (Status->Flags & STATE_ALARM)
+        wprintf( L" ALARM" );
+    if (Status->Flags & STATE_ERRC)
+        wprintf( L" ERRC" );
+    if (Status->Flags & STATE_ERRD)
+        wprintf( L" ERRD" );
+    wprintf( L"\n" );
+
     ui->textBrowser->clear();
     ui->textBrowser->append("rpm: " + QString::number( Status->CurSpeed));
     ui->textBrowser->append("pos: " + QString::number( Status->CurPosition));
@@ -87,83 +97,24 @@ void MotorControl::UpdateStatus(status_t * Status)
         ui->textBrowser->append("ERRC");
     if (Status->Flags & STATE_ERRD)
         ui->textBrowser->append("ERRD");
+
+    emit AppendTextToLog("Status update DONE" );
 }
 
-void MotorControl::print_state (status_t* state)
+void MotorControl::printStateToStr (QString string, status_t * state)
 {
-    wprintf( L" rpm: %d", state->CurSpeed );
-    wprintf( L" pos: %d", state->CurPosition );
-    wprintf( L" upwr: %d", state->Upwr );
-    wprintf( L" ipwr: %d", state->Ipwr );
-    wprintf( L" flags: %x", state->Flags );
-    wprintf( L" mvsts: %x", state->MvCmdSts );
+    string = " rpm: " + QString::number( state->CurSpeed );
+    string = string + "\n pos: " + QString::number( state->CurPosition );
+    string = string + "\n upwr: " + QString::number( state->Upwr );
+    string = string + "\n ipwr: " + QString::number( state->Ipwr );
+    string = string + "\n flags: " + QString::number( state->Flags );
+    string = string + "\n mvsts: " + QString::number( state->MvCmdSts );
     if (state->Flags & STATE_ALARM)
-        wprintf( L" ALARM" );
+         string = string + "\nALARM!!!";
     if (state->Flags & STATE_ERRC)
-        wprintf( L" ERRC" );
+        string = string + "\nERRC";
     if (state->Flags & STATE_ERRD)
-        wprintf( L" ERRD" );
-    wprintf( L"\n" );
-}
-
-void MotorControl::string_print_state (wchar_t *string, status_t* state)
-{
-    swprintf( string, L" rpm: %d", state->CurSpeed );
-    swprintf( string, L"%s\n pos: %d", string, state->CurPosition );
-    swprintf( string, L"%s\n upwr: %d", string, state->Upwr );
-    swprintf( string, L"%s\n ipwr: %d", string, state->Ipwr );
-    swprintf( string, L"%s\n flags: %x", string, state->Flags );
-    swprintf( string, L"%s\n mvsts: %x", string, state->MvCmdSts );
-    if (state->Flags & STATE_ALARM)
-        swprintf( string, L"%s\n  ALARM", string  );
-    if (state->Flags & STATE_ERRC)
-        swprintf( string, L"%s\n  ERRC", string );
-    if (state->Flags & STATE_ERRD)
-        swprintf( string, L"%s\n  ERRD", string  );
-    swprintf( string, L"%s\n", string );
-}
-
-const wchar_t* MotorControl::error_string (result_t result)
-{
-    switch (result)
-    {
-        case result_error:				return L"error";
-        case result_not_implemented:	return L"not implemented";
-        case result_nodevice:			return L"no device";
-        default:						return L"success";
-    }
-}
-
-
-
-char* MotorControl::widestr_to_str (const wchar_t* str)
-{
-    char *result;
-    mbstate_t mbs;
-    size_t len;
-    memset(&mbs, 0, sizeof(mbs));
-    len = wcsrtombs( NULL, &str, 0, &mbs );
-    if (len == (size_t)(-1))
-        return NULL;
-    result = (char *)malloc(sizeof(char)*(len+1));
-    if (result && wcsrtombs( result, &str, len+1, &mbs ) != len)
-    {
-        free(result);
-        return NULL;
-    }
-    return result;
-}
-
-const wchar_t* loglevel_string (int loglevel)
-{
-    switch (loglevel)
-    {
-        case LOGLEVEL_ERROR: 	return L"ERROR";
-        case LOGLEVEL_WARNING:	return L"WARN";
-        case LOGLEVEL_INFO:		return L"INFO";
-        case LOGLEVEL_DEBUG:	return L"DEBUG";
-        default:				return L"UNKNOWN";
-    }
+        string = string + "\nERRD\n";
 }
 
 void XIMC_CALLCONV my_logging_callback(int loglevel, const wchar_t* message, void* user_data)
@@ -174,8 +125,24 @@ void XIMC_CALLCONV my_logging_callback(int loglevel, const wchar_t* message, voi
     if (loglevel > LOGLEVEL_WARNING)
         return;
 
-    /* Print to console unicode chars */
-    swprintf( wbuf, sizeof(wbuf)/sizeof(wbuf[0])-1, L"XIMC %ls: %ls", loglevel_string( loglevel ), message );
+    switch (loglevel)
+    {
+        case LOGLEVEL_ERROR:
+                swprintf( wbuf, sizeof(wbuf)/sizeof(wbuf[0])-1, L"XIMC ERROR: %ls", L"ERROR", message );
+                break;
+        case LOGLEVEL_WARNING:
+                swprintf( wbuf, sizeof(wbuf)/sizeof(wbuf[0])-1, L"XIMC WARN: %ls", message );
+                break;
+        case LOGLEVEL_INFO:
+                swprintf( wbuf, sizeof(wbuf)/sizeof(wbuf[0])-1, L"XIMC INFO: %ls", message );
+                break;
+        case LOGLEVEL_DEBUG:
+                swprintf( wbuf, sizeof(wbuf)/sizeof(wbuf[0])-1, L"XIMC DEBUG: %ls", message );
+                break;
+        default:
+                swprintf( wbuf, sizeof(wbuf)/sizeof(wbuf[0])-1, L"XIMC UNKNOWN: %ls", message );
+                break;
+    }
     fwprintf( stderr, L"%ls\n", wbuf );
 
     (void)abuf;
@@ -196,6 +163,8 @@ void MotorControl::InitMotorDrive()
     const int probe_devices = 0;
     char ximc_version_str[32];
     device_enumeration_t devenum;
+
+
 
     //Inherit system locale
     setlocale(LC_ALL,"");
@@ -249,7 +218,7 @@ void MotorControl::InitMotorDrive()
 
     if ((result = get_status( *Device, &state )) != result_ok)
         wprintf( L"error getting status: %ls\n", error_string( result ) );
-    print_state( &state );
+    UpdateStatus( &state );
 
     if ((result = get_device_information( *Device, &di )) != result_ok)
         wprintf( L"error getting di: %ls\n", error_string( result ) );
@@ -263,7 +232,7 @@ void MotorControl::InitMotorDrive()
     if ((result = get_status( *Device, &state )) != result_ok)
         wprintf( L"error getting status %ls\n", error_string( result ) );
 
-    print_state( &state );
+    UpdateStatus( &state );
 
     if ((result = get_engine_settings( *Device, &engine_settings )) != result_ok)
         wprintf( L"error getting engine settings %ls\n", error_string( result ) );
@@ -279,10 +248,6 @@ void MotorControl::InitMotorDrive()
     wprintf( L"engine calb: voltage %d current %d speed %f\n",
         engine_settings_calb.NomVoltage, engine_settings_calb.NomCurrent, engine_settings_calb.NomSpeed );
 
-
-    for (int i = 0; i < 100000; i++);
-        i++;
-
     command_zero( *Device );
     emit AppendTextToLog("Connected motor drive" );
 
@@ -295,10 +260,14 @@ void MotorControl::NoMotorConnectionProcess()
     ui->textBrowser->clear();
     ui->textBrowser->append("No motor drive connected");
     ui->checkBox->setChecked(0);
+
+    ui->WidgetControlButtons->setEnabled(false);
+
 }
 void MotorControl::MotorConnectionOKProcess()
 {
     ui->checkBox->setChecked(1);
+    ui->WidgetControlButtons->setEnabled(true);
 }
 void MotorControl::on_btnInitDrive_clicked()
 {
