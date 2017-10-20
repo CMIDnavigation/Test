@@ -49,6 +49,7 @@ MotorControl::MotorControl(QWidget *parent) :
     connect(this, MotorConnectionOK,this, MotorConnectionOKProcess );
     ControlLoop->moveToThread(hThread);
     hThread->start();
+    //hThread->run();
 
     LogDialogBox = new QDialog;
     LogBox->setupUi(LogDialogBox);
