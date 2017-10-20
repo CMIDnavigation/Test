@@ -11,6 +11,7 @@ general::general(QWidget *parent) :
 
     ui->layout_image->addWidget(image);
     ui->layout_motor->addWidget(motor);
+
 }
 
 general::~general()
