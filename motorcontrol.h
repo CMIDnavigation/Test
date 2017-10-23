@@ -78,7 +78,7 @@ public:
 signals:
     void NoMotorConnection();
     void MotorConnectionOK();
-    void AppendTextToLog(const QString &String);
+    void AppendTextToLog(const QString &Message, const QString &Group = "UNDEF");
     void SendMoveDone();
     void SendAngleFromCam(float Angle);
 

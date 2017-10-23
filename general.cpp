@@ -12,6 +12,7 @@ general::general(QWidget *parent) :
 
     connect(image,image_process::rotate_motor, motor, MotorControl::GetAngleFromCam);
     connect(motor, MotorControl::SendMoveDone, image, image_process::slot_command_to_motor );
+    connect(motor, MotorControl::AppendTextToLog,log,LogBrowser::AppendTextToLog);
 
     ui->layout_image->addWidget(image);
     ui->layout_motor->addWidget(motor);
