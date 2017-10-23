@@ -65,7 +65,6 @@ void image_process::slot_get_and_calc_image()
     else
        threshold(gray, ufter_plus,25,255,CV_THRESH_BINARY);
 
-
     vector<vector<Point>> contours;
     vector<cv::Vec4i> hierarchy;
 
@@ -74,7 +73,7 @@ void image_process::slot_get_and_calc_image()
    findContours( gray, contours, hierarchy, CV_RETR_LIST, CV_CHAIN_APPROX_NONE, Point(0, 0));
 
    int num_max = 0; double s_max = 0;
-   for (int i = 0; i<contours.size();++i)
+   for (unsigned int i = 0; i<contours.size();++i)
         {
         Size2f size_now = minAreaRect(contours[i]).size;
         if (size_now.height*size_now.width>s_max)
@@ -102,29 +101,16 @@ void image_process::slot_get_and_calc_image()
 
     gray^=(~ufter_plus);
 
-
-        /*
-    line(ufter_plus,Point(point_rect[0].x,point_rect[0].y),Point(point_rect[1].x,point_rect[1].y),
-        cvScalar(255,255,255),1);
-    line(ufter_plus,Point(point_rect[2].x,point_rect[2].y),Point(point_rect[1].x,point_rect[1].y),
-            cvScalar(255,255,255),1);
-    line(ufter_plus,Point(point_rect[3].x,point_rect[3].y),Point(point_rect[2].x,point_rect[2].y),
-            cvScalar(255,255,255),1);
-    line(ufter_plus,Point(point_rect[0].x,point_rect[0].y),Point(point_rect[3].x,point_rect[3].y),
-            cvScalar(255,255,255),1);
-            */
-
-//    ufter_plus&=gray;//Сложение картинок
-
     double intensivity = integral_intensity(gray);
 
 
 
-    QString to_form; to_form.setNum(intensivity);
-    ui->lineEdit->setText(to_form);
-
     if (intensivity<1)//Эмперически)
         {
+        float now_angle = abs(rect.angle);
+        QString to_form; to_form.setNum(now_angle);
+        ui->lineEdit->setText(to_form);
+
         line(original,Point(point_rect[0].x,point_rect[0].y),Point(point_rect[1].x,point_rect[1].y),
             cvScalar(0,0,255),1);
         line(original,Point(point_rect[2].x,point_rect[2].y),Point(point_rect[1].x,point_rect[1].y),
@@ -134,12 +120,12 @@ void image_process::slot_get_and_calc_image()
         line(original,Point(point_rect[0].x,point_rect[0].y),Point(point_rect[3].x,point_rect[3].y),
                 cvScalar(0,0,255),1);
 
-        if (send_angle_to_rotate)
+        if ((!flag_wait_answer)&&ui->check_correct_pos->isChecked())
             {
-            send_angle_to_rotate = false;
-            if ((need_andle - rect.angle)>1.0)
+            if (abs(need_andle - now_angle)>1.0)
                 {
-                emit rotate_motor(need_andle - rect.angle);
+                flag_wait_answer = true;
+                emit rotate_motor(now_angle- need_andle);
                 }
             else
                 {}
@@ -155,7 +141,7 @@ void image_process::on_chk_capture_image_stateChanged(int arg1)
     if (arg1)
         {
         slot_cycle_get_images();
-    }
+        }
 }
 
 
@@ -170,18 +156,10 @@ float image_process::integral_intensity(const Mat &Mat_to_count)
 
 void image_process::slot_command_to_motor()
 {
-    send_angle_to_rotate = true;
+    flag_wait_answer = false;
 }
 
 
-
-
-
-
-void image_process::on_btn_check_position_pressed()
-{
-    slot_command_to_motor();
-}
 
 void image_process::slot_close()
 {
@@ -189,3 +167,11 @@ void image_process::slot_close()
 }
 
 
+
+void image_process::on_line_angle_editingFinished()
+{
+    bool okay_translate = false;
+    float angle = ui->line_angle->text().toFloat(&okay_translate);
+    if (okay_translate)
+        need_andle = angle;
+}
