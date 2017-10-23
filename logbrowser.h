@@ -9,6 +9,8 @@
 #include <QPair>
 #include <QTime>
 #include <QDate>
+#include <QTextStream>
+#include <QDir>
 
 namespace Ui {
 class LogBrowser;
@@ -34,7 +36,7 @@ private slots:
 private:
 
     QFile * LogFile;
-    QString addr;
+    QTextStream * LogToFileStream;
 
     QVector< QPair<QString,QString> > MessageArray;
     Ui::LogBrowser *ui;

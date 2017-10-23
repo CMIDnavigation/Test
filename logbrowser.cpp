@@ -9,6 +9,11 @@ LogBrowser::LogBrowser(QWidget *parent) :
     ui->btnCloseLog->setVisible(0);
     ui->comboFilter->addItem(" ALL ");
 
+    LogFile = 0;
+    LogToFileStream = 0;
+
+    ui->lineFileAddr->setText(QApplication::applicationDirPath() + "/" + QDate::currentDate().toString("ddMMyyyy_") + QApplication::applicationName() + ".log");
+
     QFont myfont ("Monospace");
     myfont.setStyleHint(QFont::Monospace);
     myfont.setPixelSize(12);
@@ -49,11 +54,43 @@ void LogBrowser::AppendTextToLog( QString Message, QString Group)
 
     if (ui->comboFilter->currentText() == Group || ui->comboFilter->currentText() == " ALL ")
         ui->LogBrowserBox->append("["+Group+"]: " + CurDay.toString("dd.MM.yyyy") + "/" + CurTime.toString("hh:mm:ss") + " >>> " + Message);
+
+    if (ui->checkFileWriteLog->isChecked())
+        *LogToFileStream << "[" << Group << "]: " << Message << endl;
 }
 
 void LogBrowser::on_btnSaveLog_clicked()
 {
-    AppendTextToLog( "QString Message", "ERROR");
+    if (ui->checkFileWriteLog->isChecked())
+    {
+
+        ui->checkFileWriteLog->setChecked(false);
+        ui->btnSaveLog->setText("Start");
+        LogFile->close();
+        LogFile = 0;
+        delete(LogToFileStream);
+        LogToFileStream = 0;
+
+    }
+    else
+    {
+        AppendTextToLog( "Trying to open file: " + ui->lineFileAddr->text(), " MSG ");
+        if (LogFile != 0) LogFile->close();
+        LogFile = new QFile(ui->lineFileAddr->text());
+        if(!LogFile->open(QFile::Append |
+                          QFile::Text))
+        {
+            AppendTextToLog( "Could not open file for writing", "ERROR");
+            return;
+        }
+        AppendTextToLog( "Log file was opened", " MSG ");
+        if (LogToFileStream!= 0) delete(LogToFileStream);
+        LogToFileStream = new QTextStream(LogFile);
+        ui->checkFileWriteLog->setChecked(true);
+        ui->btnSaveLog->setText("Stop");
+        for(auto CurrentLogItem = MessageArray.begin(); CurrentLogItem!= MessageArray.end(); CurrentLogItem++)
+            *LogToFileStream << "[" << CurrentLogItem->first << "]: " << CurrentLogItem->second << endl;
+    }
 }
 
 void LogBrowser::on_comboFilter_currentIndexChanged(const QString &arg1)
