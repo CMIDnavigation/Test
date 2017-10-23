@@ -4,6 +4,11 @@
 #include <QWidget>
 #include <QFile>
 #include <QFileDialog>
+#include <QSet>
+#include <QVector>
+#include <QPair>
+#include <QTime>
+#include <QDate>
 
 namespace Ui {
 class LogBrowser;
@@ -22,14 +27,16 @@ public slots:
 
 private slots:
     void on_pushButton_clicked();
-
     void on_btnClearLog_clicked();
+    void on_btnSaveLog_clicked();
+    void on_comboFilter_currentIndexChanged(const QString &arg1);
 
 private:
 
     QFile * LogFile;
     QString addr;
 
+    QVector< QPair<QString,QString> > MessageArray;
     Ui::LogBrowser *ui;
 };
 
