@@ -38,7 +38,6 @@ MotorControl::MotorControl(QWidget *parent) :
     ui->setupUi(this);
 
     Device = new device_t;
-    *Device = 0;
     connect(this, NoMotorConnection,this, NoMotorConnectionProcess );
     connect(this, MotorConnectionOK,this, MotorConnectionOKProcess );
 
