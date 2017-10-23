@@ -27,11 +27,10 @@ private slots:
     void slot_cycle_get_images();
     void slot_get_and_calc_image();
     void on_chk_capture_image_stateChanged(int arg1);
-    void on_btn_check_position_pressed();
 
 private:
     const float need_andle = 0;
-    bool send_angle_to_rotate = false;
+    bool flag_wait_answer = false;
     Ui::image_process *ui;
     cv::VideoCapture capture;
     cv::Mat original;

@@ -24,16 +24,16 @@
       </widget>
      </item>
      <item>
-      <widget class="QCheckBox" name="checkBox_2">
+      <widget class="QLineEdit" name="lineEdit_2">
        <property name="text">
-        <string>Показывать изображения</string>
+        <string>0</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="btn_check_position">
+      <widget class="QCheckBox" name="check_correct_pos">
        <property name="text">
-        <string>Позиционировать</string>
+        <string>Корректировать позицию</string>
        </property>
       </widget>
      </item>

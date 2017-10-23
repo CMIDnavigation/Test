@@ -65,7 +65,6 @@ void image_process::slot_get_and_calc_image()
     else
        threshold(gray, ufter_plus,25,255,CV_THRESH_BINARY);
 
-
     vector<vector<Point>> contours;
     vector<cv::Vec4i> hierarchy;
 
@@ -102,23 +101,7 @@ void image_process::slot_get_and_calc_image()
 
     gray^=(~ufter_plus);
 
-
-        /*
-    line(ufter_plus,Point(point_rect[0].x,point_rect[0].y),Point(point_rect[1].x,point_rect[1].y),
-        cvScalar(255,255,255),1);
-    line(ufter_plus,Point(point_rect[2].x,point_rect[2].y),Point(point_rect[1].x,point_rect[1].y),
-            cvScalar(255,255,255),1);
-    line(ufter_plus,Point(point_rect[3].x,point_rect[3].y),Point(point_rect[2].x,point_rect[2].y),
-            cvScalar(255,255,255),1);
-    line(ufter_plus,Point(point_rect[0].x,point_rect[0].y),Point(point_rect[3].x,point_rect[3].y),
-            cvScalar(255,255,255),1);
-            */
-
-//    ufter_plus&=gray;//Сложение картинок
-
     double intensivity = integral_intensity(gray);
-
-
 
     QString to_form; to_form.setNum(intensivity);
     ui->lineEdit->setText(to_form);
@@ -134,11 +117,11 @@ void image_process::slot_get_and_calc_image()
         line(original,Point(point_rect[0].x,point_rect[0].y),Point(point_rect[3].x,point_rect[3].y),
                 cvScalar(0,0,255),1);
 
-        if (send_angle_to_rotate)
+        if ((!flag_wait_answer)&&ui->check_correct_pos->isChecked())
             {
-            send_angle_to_rotate = false;
             if ((need_andle - rect.angle)>1.0)
                 {
+                flag_wait_answer = true;
                 emit rotate_motor(need_andle - rect.angle);
                 }
             else
@@ -170,18 +153,10 @@ float image_process::integral_intensity(const Mat &Mat_to_count)
 
 void image_process::slot_command_to_motor()
 {
-    send_angle_to_rotate = true;
+    flag_wait_answer = false;
 }
 
 
-
-
-
-
-void image_process::on_btn_check_position_pressed()
-{
-    slot_command_to_motor();
-}
 
 void image_process::slot_close()
 {
