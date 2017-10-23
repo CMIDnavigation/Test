@@ -15,9 +15,9 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="QGroupBox" name="groupBox">
+    <widget class="QGroupBox" name="groupLogBrowser">
      <property name="title">
-      <string>GroupBox</string>
+      <string>Log browser</string>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_2">
       <item>
@@ -33,7 +33,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QLineEdit" name="lineEdit_2"/>
+         <widget class="QLineEdit" name="lineFileAddr"/>
         </item>
         <item>
          <widget class="QPushButton" name="pushButton">
@@ -52,7 +52,7 @@
        </layout>
       </item>
       <item>
-       <widget class="QTextBrowser" name="textBrowser">
+       <widget class="QTextBrowser" name="LogBrowserBox">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
           <horstretch>0</horstretch>
@@ -71,7 +71,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QLineEdit" name="lineEdit"/>
+         <widget class="QComboBox" name="comboFilter"/>
         </item>
         <item>
          <widget class="QPushButton" name="btnApplyFilter">

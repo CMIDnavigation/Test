@@ -38,6 +38,7 @@ MotorControl::MotorControl(QWidget *parent) :
     ui->setupUi(this);
 
     Device = new device_t;
+    *Device = 0;
     connect(this, NoMotorConnection,this, NoMotorConnectionProcess );
     connect(this, MotorConnectionOK,this, MotorConnectionOKProcess );
 
@@ -55,12 +56,10 @@ MotorControl::MotorControl(QWidget *parent) :
 
 
     hThread->start();
-    //hThread->run();
-
     emit SendAngleFromCam(20);
+
     LogDialogBox = new QDialog;
     LogBox->setupUi(LogDialogBox);
-
     connect( LogBox->btnExit, QPushButton::pressed, this, CloseLogDialog);
     connect( this, AppendTextToLog, LogBox->LogTextWindow, QTextBrowser::append);
 }
