@@ -28,8 +28,12 @@ private slots:
     void slot_get_and_calc_image();
     void on_chk_capture_image_stateChanged(int arg1);
 
+
+
+    void on_line_angle_editingFinished();
+
 private:
-    const float need_andle = 0;
+    float need_andle = 0;
     bool flag_wait_answer = false;
     Ui::image_process *ui;
     cv::VideoCapture capture;
