@@ -8,13 +8,14 @@ general::general(QWidget *parent) :
     ui->setupUi(this);
     motor = new MotorControl(this);
     image = new image_process(this);
+    log = new LogBrowser(this);
 
     connect(image,image_process::rotate_motor, motor, MotorControl::GetAngleFromCam);
     connect(motor, MotorControl::SendMoveDone, image, image_process::slot_command_to_motor );
 
-
     ui->layout_image->addWidget(image);
     ui->layout_motor->addWidget(motor);
+    ui->layout_log->addWidget(log);
 
 }
 
