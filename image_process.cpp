@@ -59,16 +59,17 @@ void image_process::slot_get_and_calc_image()
 
     float integral_gray = integral_intensity(gray);
     if (integral_gray>170)
-       threshold(gray, gray,60,255,CV_THRESH_BINARY);
+       threshold(gray, ufter_plus,60,255,CV_THRESH_BINARY);
     else if (integral_gray>100)
-       threshold(gray, gray,45,255,CV_THRESH_BINARY);
+       threshold(gray, ufter_plus,45,255,CV_THRESH_BINARY);
     else
-       threshold(gray, gray,25,255,CV_THRESH_BINARY);
+       threshold(gray, ufter_plus,25,255,CV_THRESH_BINARY);
+
 
     vector<vector<Point>> contours;
     vector<cv::Vec4i> hierarchy;
 
-   Canny( gray, gray, 1, 3, 3 );
+   Canny( ufter_plus, gray, 1, 3, 3 );
 
    findContours( gray, contours, hierarchy, CV_RETR_LIST, CV_CHAIN_APPROX_NONE, Point(0, 0));
 
@@ -89,28 +90,41 @@ void image_process::slot_get_and_calc_image()
     RotatedRect rect = cv::minAreaRect(contours[num_max]);
     Point2f point_rect[4]; rect.points(point_rect);
 
-    line(ufter_plus,Point(point_rect[0].x,point_rect[0].y),Point(point_rect[1].x,point_rect[1].y),
-        cvScalar(255,255,255),3);
-    line(ufter_plus,Point(point_rect[2].x,point_rect[2].y),Point(point_rect[1].x,point_rect[1].y),
-            cvScalar(255,255,255),3);
-    line(ufter_plus,Point(point_rect[3].x,point_rect[3].y),Point(point_rect[2].x,point_rect[2].y),
-            cvScalar(255,255,255),3);
-    line(ufter_plus,Point(point_rect[0].x,point_rect[0].y),Point(point_rect[3].x,point_rect[3].y),
-            cvScalar(255,255,255),3);
-    double rect_before = integral_intensity(ufter_plus);
+    cv::Point point_rect_to_draw[4];
 
-    if (rect_before==0) return;
-
-    ufter_plus&=gray;//Сложение картинок
-
-    double rect_ufter = integral_intensity(ufter_plus);
-    float before_ufter = rect_ufter/rect_before;
-
-    if (before_ufter>0.18)//Эмперически)
+    for(int i = 0; i < 4; ++i)
         {
-        QString to_form; to_form.setNum(rect.angle);
-        ui->lineEdit->setText(to_form);
+        point_rect_to_draw[i] = point_rect[i];
+        }
 
+    gray = Mat(gray.rows,gray.cols,CV_8UC1, Scalar(0,0,0));
+    fillConvexPoly(gray, point_rect_to_draw, 4, Scalar(255,255,255));
+
+    gray^=(~ufter_plus);
+
+
+        /*
+    line(ufter_plus,Point(point_rect[0].x,point_rect[0].y),Point(point_rect[1].x,point_rect[1].y),
+        cvScalar(255,255,255),1);
+    line(ufter_plus,Point(point_rect[2].x,point_rect[2].y),Point(point_rect[1].x,point_rect[1].y),
+            cvScalar(255,255,255),1);
+    line(ufter_plus,Point(point_rect[3].x,point_rect[3].y),Point(point_rect[2].x,point_rect[2].y),
+            cvScalar(255,255,255),1);
+    line(ufter_plus,Point(point_rect[0].x,point_rect[0].y),Point(point_rect[3].x,point_rect[3].y),
+            cvScalar(255,255,255),1);
+            */
+
+//    ufter_plus&=gray;//Сложение картинок
+
+    double intensivity = integral_intensity(gray);
+
+
+
+    QString to_form; to_form.setNum(intensivity);
+    ui->lineEdit->setText(to_form);
+
+    if (intensivity<1)//Эмперически)
+        {
         line(original,Point(point_rect[0].x,point_rect[0].y),Point(point_rect[1].x,point_rect[1].y),
             cvScalar(0,0,255),1);
         line(original,Point(point_rect[2].x,point_rect[2].y),Point(point_rect[1].x,point_rect[1].y),
