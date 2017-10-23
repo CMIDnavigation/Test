@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include "motorcontrol.h"
 #include "image_process.h"
+#include "logbrowser.h"
 #include <QCloseEvent>
 #include <QEvent>
 
@@ -20,6 +21,7 @@ public:
     ~general();
     image_process* image;
     MotorControl* motor;
+    LogBrowser* log;
 protected :
     virtual void closeEvent(QCloseEvent* event);
 private:
