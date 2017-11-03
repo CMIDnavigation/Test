@@ -32,8 +32,7 @@ void Ctrl_loop::GetAngleFromCam(float Angle)
 MotorControl::MotorControl(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::MotorControl),
-    LogBox(new Ui::Dialog),
-    Device(0)
+    LogBox(new Ui::Dialog)
 {
     ui->setupUi(this);
 
@@ -51,17 +50,16 @@ MotorControl::MotorControl(QWidget *parent) :
     connect(this, MotorConnectionOK,this, MotorConnectionOKProcess );
     connect(ControlLoop, Ctrl_loop::ConnectionError, this, NoMotorConnection );
     connect(ControlLoop, Ctrl_loop::MoveDone, this, GetMoveDone );
-    //connect(this, SendAngleFromCam, ControlLoop, Ctrl_loop::GetAngleFromCam);
-    connect(this,SIGNAL(SendAngleFromCam(float)),ControlLoop,SLOT(GetAngleFromCam(float)));
-
-
+    connect(this, SendAngleFromCam, ControlLoop, Ctrl_loop::GetAngleFromCam);
     hThread->start();
-    emit SendAngleFromCam(20);
 
+    //Disable Internal log browser of Motor drive class
+    ui->btnOpenLog->setVisible(false);
     LogDialogBox = new QDialog;
     LogBox->setupUi(LogDialogBox);
     connect( LogBox->btnExit, QPushButton::pressed, this, CloseLogDialog);
     connect( this, AppendTextToLog, LogBox->LogTextWindow, QTextBrowser::append);
+
 }
 MotorControl::~MotorControl()
 {
