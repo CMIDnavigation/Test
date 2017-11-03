@@ -58,13 +58,22 @@ void image_process::slot_get_and_calc_image()
     ufter_plus = Mat(gray.rows,gray.cols,CV_8UC1, Scalar(0,0,0));
     cv::blur(gray,gray,cv::Size(3,3),cv::Point(-1,-1));
 
-    float integral_gray = integral_intensity(gray);
-    if (integral_gray>170)
-       threshold(gray, ufter_plus,60,255,CV_THRESH_BINARY);
-    else if (integral_gray>100)
-       threshold(gray, ufter_plus,45,255,CV_THRESH_BINARY);
-    else
-       threshold(gray, ufter_plus,25,255,CV_THRESH_BINARY);
+//    float integral_gray = integral_intensity(gray);
+//    if (integral_gray>170)
+//       threshold(gray, ufter_plus,60,255,CV_THRESH_BINARY);
+//    else if (integral_gray>100)
+//       threshold(gray, ufter_plus,45,255,CV_THRESH_BINARY);
+//    else
+//       threshold(gray, ufter_plus,25,255,CV_THRESH_BINARY);
+
+
+
+//    threshold(gray, ufter_plus,ui->slider_Y->value(),255,CV_THRESH_BINARY);
+//    for (int i = 0; i<2;++i)
+//    {
+//    dilate(ufter_plus, ufter_plus, element);
+//    }
+//    erode(ufter_plus, ufter_plus, element);
 
     vector<vector<Point>> contours;
     vector<cv::Vec4i> hierarchy;
@@ -106,7 +115,7 @@ void image_process::slot_get_and_calc_image()
 
 
 
-    if (intensivity<1)//Эмперически)
+    if (intensivity<(ui->slider_intesivity->value()/100))//Эмперически)
         {
         float now_angle = abs(rect.angle);
         QString to_form; to_form.setNum(now_angle);
