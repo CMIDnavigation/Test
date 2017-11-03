@@ -10,7 +10,8 @@ image_process::image_process(QWidget *parent) :
 {
     ui->setupUi(this);
     capture = VideoCapture(CV_CAP_ANY);
-
+    if (!capture.isOpened())
+        ui->chk_capture_image->setEnabled(false);
 }
 
 image_process::~image_process()
@@ -128,7 +129,9 @@ void image_process::slot_get_and_calc_image()
                 emit rotate_motor(now_angle- need_andle);
                 }
             else
-                {}
+                {
+                ui->line_angle->setEnabled(true);
+                }
             }
         }
 
@@ -173,5 +176,7 @@ void image_process::on_line_angle_editingFinished()
     bool okay_translate = false;
     float angle = ui->line_angle->text().toFloat(&okay_translate);
     if (okay_translate)
+        if (angle>=0 && angle <90)
         need_andle = angle;
+    ui->line_angle->setEnabled(false);
 }
