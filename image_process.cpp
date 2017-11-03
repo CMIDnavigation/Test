@@ -68,12 +68,16 @@ void image_process::slot_get_and_calc_image()
 
 
 
-//    threshold(gray, ufter_plus,ui->slider_Y->value(),255,CV_THRESH_BINARY);
-//    for (int i = 0; i<2;++i)
-//    {
-//    dilate(ufter_plus, ufter_plus, element);
-//    }
-//    erode(ufter_plus, ufter_plus, element);
+    int radius = 1;
+    Mat element = getStructuringElement( CV_SHAPE_ELLIPSE,
+                                           Size( 2*radius + 1, 2*radius+1 ),
+                                           Point( radius, radius ) );
+    threshold(gray, ufter_plus,ui->slider_Y->value(),255,CV_THRESH_BINARY);
+    for (int i = 0; i<2;++i)
+    {
+    dilate(ufter_plus, ufter_plus, element);
+    }
+    erode(ufter_plus, ufter_plus, element);
 
     vector<vector<Point>> contours;
     vector<cv::Vec4i> hierarchy;
@@ -112,7 +116,7 @@ void image_process::slot_get_and_calc_image()
     gray^=(~ufter_plus);
 
     double intensivity = integral_intensity(gray);
-
+    ui->spin_intensivity->setValue(intensivity);
 
 
     if (intensivity<(ui->slider_intesivity->value()/100))//Эмперически)
@@ -188,4 +192,14 @@ void image_process::on_line_angle_editingFinished()
         if (angle>=0 && angle <90)
         need_andle = angle;
     ui->line_angle->setEnabled(false);
+}
+
+void image_process::on_slider_Y_valueChanged(int value)
+{
+    ui->value_Y->setText(QString::number(value));
+}
+
+void image_process::on_slider_intesivity_valueChanged(int value)
+{
+    ui->value_intesiv->setText(QString::number(value/100));
 }

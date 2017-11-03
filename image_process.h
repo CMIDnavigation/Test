@@ -32,6 +32,10 @@ private slots:
 
     void on_line_angle_editingFinished();
 
+    void on_slider_Y_valueChanged(int value);
+
+    void on_slider_intesivity_valueChanged(int value);
+
 private:
     float need_andle = 0;
     bool flag_wait_answer = false;
