@@ -36,6 +36,9 @@ Ctrl_loop::Ctrl_loop( device_t * D )
 }
 Ctrl_loop::~Ctrl_loop()
 {
+    hThread->quit();
+    //hThread->wait();
+
     delete(hThread);
     delete(State);
 }
@@ -49,7 +52,7 @@ void Ctrl_loop::GetAngleFromCam(float Angle)
 
 void Ctrl_loop::stopThread()
 {
-    hThread->exit();
+
 }
 void Ctrl_loop::startThread()
 {
@@ -86,7 +89,7 @@ MotorControl::MotorControl(QWidget *parent) :
 }
 MotorControl::~MotorControl()
 {
-    ControlLoop->stopThread();
+    //ControlLoop->stopThread();
     command_stop( *Device );
     delete(Device);
     delete(ControlLoop);
