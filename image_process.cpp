@@ -76,8 +76,8 @@ void image_process::slot_get_and_calc_image()
 
     Mat buffer1;//Буфферная зона1
     threshold(gray, buffer1,ui->slider_Y->value(),255,CV_THRESH_BINARY);
-    cvNamedWindow("ufter_treshhold", CV_WINDOW_AUTOSIZE);
-    imshow("ufter_treshhold",buffer1);
+//    cvNamedWindow("ufter_treshhold", CV_WINDOW_AUTOSIZE);
+//    imshow("ufter_treshhold",buffer1);
 
     for (int i = 0; i<2;++i)
     {
@@ -86,8 +86,8 @@ void image_process::slot_get_and_calc_image()
 
     Mat buffer2;//Буфферная зона2
     erode(ufter_plus, buffer2, element);
-    cvNamedWindow("ufter erode", CV_WINDOW_AUTOSIZE);
-    imshow("ufter erode",buffer2);
+//    cvNamedWindow("ufter erode", CV_WINDOW_AUTOSIZE);
+//    imshow("ufter erode",buffer2);
 
 
     erode(ufter_plus, ufter_plus, element);
@@ -104,8 +104,8 @@ void image_process::slot_get_and_calc_image()
 
    Mat buffer3;//Буфферная зона3
    Canny( ufter_plus, buffer3, 1, 3, 3 );
-   cvNamedWindow("ufter Canny", CV_WINDOW_AUTOSIZE);
-   imshow("ufter Canny",buffer3);
+//   cvNamedWindow("ufter Canny", CV_WINDOW_AUTOSIZE);
+//   imshow("ufter Canny",buffer3);
 
 
 
@@ -137,15 +137,13 @@ void image_process::slot_get_and_calc_image()
 
     Mat buffer4 = Mat(gray.rows,gray.cols,CV_8UC1, Scalar(0,0,0));;//Буфферная зона3
     fillConvexPoly(buffer4, point_rect_to_draw, 4, Scalar(255,255,255));
-    cvNamedWindow("Poly", CV_WINDOW_AUTOSIZE);
-    imshow("Poly",buffer4);
+
+//    cvNamedWindow("Poly", CV_WINDOW_AUTOSIZE);
+//    imshow("Poly",buffer4);
 
 
     gray = Mat(gray.rows,gray.cols,CV_8UC1, Scalar(0,0,0));
     fillConvexPoly(gray, point_rect_to_draw, 4, Scalar(255,255,255));
-
-
-
 
 
     gray^=(~ufter_plus);
