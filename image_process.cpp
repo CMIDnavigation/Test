@@ -73,16 +73,41 @@ void image_process::slot_get_and_calc_image()
                                            Size( 2*radius + 1, 2*radius+1 ),
                                            Point( radius, radius ) );
     threshold(gray, ufter_plus,ui->slider_Y->value(),255,CV_THRESH_BINARY);
+
+    Mat buffer1;//Буфферная зона1
+    threshold(gray, buffer1,ui->slider_Y->value(),255,CV_THRESH_BINARY);
+    cvNamedWindow("ufter_treshhold", CV_WINDOW_AUTOSIZE);
+    imshow("ufter_treshhold",buffer1);
+
     for (int i = 0; i<2;++i)
     {
     dilate(ufter_plus, ufter_plus, element);
     }
+
+    Mat buffer2;//Буфферная зона2
+    erode(ufter_plus, buffer2, element);
+    cvNamedWindow("ufter erode", CV_WINDOW_AUTOSIZE);
+    imshow("ufter erode",buffer2);
+
+
     erode(ufter_plus, ufter_plus, element);
+
+
+
+
+
 
     vector<vector<Point>> contours;
     vector<cv::Vec4i> hierarchy;
 
    Canny( ufter_plus, gray, 1, 3, 3 );
+
+   Mat buffer3;//Буфферная зона3
+   Canny( ufter_plus, buffer3, 1, 3, 3 );
+   cvNamedWindow("ufter Canny", CV_WINDOW_AUTOSIZE);
+   imshow("ufter Canny",buffer3);
+
+
 
    findContours( gray, contours, hierarchy, CV_RETR_LIST, CV_CHAIN_APPROX_NONE, Point(0, 0));
 
@@ -110,8 +135,18 @@ void image_process::slot_get_and_calc_image()
         point_rect_to_draw[i] = point_rect[i];
         }
 
+    Mat buffer4 = Mat(gray.rows,gray.cols,CV_8UC1, Scalar(0,0,0));;//Буфферная зона3
+    fillConvexPoly(buffer4, point_rect_to_draw, 4, Scalar(255,255,255));
+    cvNamedWindow("Poly", CV_WINDOW_AUTOSIZE);
+    imshow("Poly",buffer4);
+
+
     gray = Mat(gray.rows,gray.cols,CV_8UC1, Scalar(0,0,0));
     fillConvexPoly(gray, point_rect_to_draw, 4, Scalar(255,255,255));
+
+
+
+
 
     gray^=(~ufter_plus);
 
@@ -119,7 +154,7 @@ void image_process::slot_get_and_calc_image()
     ui->spin_intensivity->setValue(intensivity);
 
 
-    if (intensivity<(ui->slider_intesivity->value()/100))//Эмперически)
+    if (intensivity<(ui->slider_intesivity->value()))//Эмперически)
         {
         float now_angle = abs(rect.angle);
         QString to_form; to_form.setNum(now_angle);
