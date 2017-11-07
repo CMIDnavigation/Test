@@ -3,7 +3,7 @@
 
 void Ctrl_loop::StartLoop(void)
 {
-    while(this->thread())
+    while(stopThreadFlag == 0)
     {
         if (*Device)
         {
@@ -28,7 +28,7 @@ Ctrl_loop::Ctrl_loop( device_t * D )
     Device = D;
     Ready = true;
     hThread = new QThread(this);
-
+    stopThreadFlag = 0;
     connect(hThread, QThread::started, this, Ctrl_loop::StartLoop);
 
     this->moveToThread(hThread);
@@ -49,10 +49,13 @@ void Ctrl_loop::GetAngleFromCam(float Angle)
 
 void Ctrl_loop::stopThread()
 {
-    hThread->exit();
+    stopThreadFlag = 1;
+    hThread->wait();
+    delete(hThread);
 }
 void Ctrl_loop::startThread()
 {
+    stopThreadFlag = 0;
     hThread->start();
 }
 MotorControl::MotorControl(QWidget *parent) :
