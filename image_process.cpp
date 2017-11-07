@@ -12,6 +12,10 @@ image_process::image_process(QWidget *parent) :
     capture = VideoCapture(CV_CAP_ANY);
     if (!capture.isOpened())
         ui->chk_capture_image->setEnabled(false);
+    ui->combo_type_pict->addItem("Оригинальный");
+    ui->combo_type_pict->addItem("Черно-белый");
+
+
 }
 
 image_process::~image_process()
@@ -54,7 +58,13 @@ void image_process::slot_cycle_get_images()
 void image_process::slot_get_and_calc_image()
 {
     capture>>original;
+    if (ui->combo_type_pict->currentText()=="Оригинальный")
+        slot_mat_to_widget(original);
+
     cvtColor(original, gray, CV_RGB2GRAY);
+    if (ui->combo_type_pict->currentText()=="Черно-белый")
+        slot_mat_to_widget(gray);
+
     ufter_plus = Mat(gray.rows,gray.cols,CV_8UC1, Scalar(0,0,0));
     cv::blur(gray,gray,cv::Size(3,3),cv::Point(-1,-1));
 
@@ -89,13 +99,7 @@ void image_process::slot_get_and_calc_image()
 //    cvNamedWindow("ufter erode", CV_WINDOW_AUTOSIZE);
 //    imshow("ufter erode",buffer2);
 
-
     erode(ufter_plus, ufter_plus, element);
-
-
-
-
-
 
     vector<vector<Point>> contours;
     vector<cv::Vec4i> hierarchy;
@@ -235,4 +239,21 @@ void image_process::on_slider_Y_valueChanged(int value)
 void image_process::on_slider_intesivity_valueChanged(int value)
 {
     ui->value_intesiv->setText(QString::number(value/100));
+}
+
+void image_process::slot_mat_to_widget(Mat image_to_show)
+{
+
+    Mat temp_math;//(image_to_show.cols,image_to_show.rows,image_to_show.type()); // make the same cv::Mat
+    if (image_to_show.channels()==3)
+        cvtColor(image_to_show, temp_math,CV_BGR2RGB);
+    else
+        image_to_show.copyTo(temp_math);
+  //       cvtColor(image_to_show, temp_math, CV_BGR2GRAY);// cvtColor Makes a copt, that what i need
+    QImage temp;
+    if (image_to_show.channels()==3)
+        temp = QImage((uchar*) temp_math.data, temp_math.cols, temp_math.rows, temp_math.step, QImage::Format_RGB888);
+    else
+        temp = QImage((uchar*) temp_math.data, temp_math.cols, temp_math.rows, temp_math.step,  QImage::Format_Indexed8);
+    ui->lable_Image->setPixmap(QPixmap::fromImage(temp, Qt::AutoColor));
 }

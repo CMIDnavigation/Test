@@ -8,6 +8,8 @@
 #include <vector>
 #include <QString>
 #include <QVector>
+#include <QPixmap>
+#include <QImage>
 
 
 
@@ -27,15 +29,10 @@ private slots:
     void slot_cycle_get_images();
     void slot_get_and_calc_image();
     void on_chk_capture_image_stateChanged(int arg1);
-
-
-
     void on_line_angle_editingFinished();
-
     void on_slider_Y_valueChanged(int value);
-
     void on_slider_intesivity_valueChanged(int value);
-
+    void slot_mat_to_widget(cv::Mat image_to_show);
 private:
     float need_andle = 0;
     bool flag_wait_answer = false;
