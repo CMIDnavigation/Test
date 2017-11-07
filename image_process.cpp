@@ -15,8 +15,10 @@ image_process::image_process(QWidget *parent) :
     ui->combo_type_pict->addItem("Оригинальный");
     ui->combo_type_pict->addItem("Черно-белый");
     ui->combo_type_pict->addItem("После фильтра яркости");
-
-
+    ui->combo_type_pict->addItem("После расширения");
+    ui->combo_type_pict->addItem("После Канни");
+    ui->combo_type_pict->addItem("Черно-белый");
+    ui->combo_type_pict->addItem("Полигон");
 }
 
 image_process::~image_process()
@@ -31,6 +33,7 @@ image_process::~image_process()
 void image_process::slot_cycle_get_images()
 {
     cvNamedWindow("original", CV_WINDOW_AUTOSIZE);
+
     cvNamedWindow("gray", CV_WINDOW_AUTOSIZE);
     cvNamedWindow("Canny", CV_WINDOW_AUTOSIZE);
 
@@ -54,6 +57,7 @@ void image_process::slot_cycle_get_images()
     destroyWindow("original");
     destroyWindow("gray");
     destroyWindow("Canny");
+
 }
 
 void image_process::slot_get_and_calc_image()
@@ -101,6 +105,9 @@ void image_process::slot_get_and_calc_image()
 
     Mat buffer2;//Буфферная зона2
     erode(ufter_plus, buffer2, element);
+    if (ui->combo_type_pict->currentText()=="После расширения")
+        slot_mat_to_widget(buffer2);
+
 //    cvNamedWindow("ufter erode", CV_WINDOW_AUTOSIZE);
 //    imshow("ufter erode",buffer2);
 
@@ -113,6 +120,8 @@ void image_process::slot_get_and_calc_image()
 
    Mat buffer3;//Буфферная зона3
    Canny( ufter_plus, buffer3, 1, 3, 3 );
+   if (ui->combo_type_pict->currentText()=="После Канни")
+       slot_mat_to_widget(buffer3);
 //   cvNamedWindow("ufter Canny", CV_WINDOW_AUTOSIZE);
 //   imshow("ufter Canny",buffer3);
 
@@ -147,6 +156,8 @@ void image_process::slot_get_and_calc_image()
     Mat buffer4 = Mat(gray.rows,gray.cols,CV_8UC1, Scalar(0,0,0));;//Буфферная зона3
     fillConvexPoly(buffer4, point_rect_to_draw, 4, Scalar(255,255,255));
 
+    if (ui->combo_type_pict->currentText()=="Полигон")
+        slot_mat_to_widget(buffer4);
 //    cvNamedWindow("Poly", CV_WINDOW_AUTOSIZE);
 //    imshow("Poly",buffer4);
 
