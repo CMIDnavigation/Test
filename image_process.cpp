@@ -14,6 +14,7 @@ image_process::image_process(QWidget *parent) :
         ui->chk_capture_image->setEnabled(false);
     ui->combo_type_pict->addItem("Оригинальный");
     ui->combo_type_pict->addItem("Черно-белый");
+    ui->combo_type_pict->addItem("После фильтра яркости");
 
 
 }
@@ -86,6 +87,10 @@ void image_process::slot_get_and_calc_image()
 
     Mat buffer1;//Буфферная зона1
     threshold(gray, buffer1,ui->slider_Y->value(),255,CV_THRESH_BINARY);
+
+    if (ui->combo_type_pict->currentText()=="После фильтра яркости")
+        slot_mat_to_widget(buffer1);
+
 //    cvNamedWindow("ufter_treshhold", CV_WINDOW_AUTOSIZE);
 //    imshow("ufter_treshhold",buffer1);
 
@@ -243,17 +248,10 @@ void image_process::on_slider_intesivity_valueChanged(int value)
 
 void image_process::slot_mat_to_widget(Mat image_to_show)
 {
-
-    Mat temp_math;//(image_to_show.cols,image_to_show.rows,image_to_show.type()); // make the same cv::Mat
-    if (image_to_show.channels()==3)
-        cvtColor(image_to_show, temp_math,CV_BGR2RGB);
-    else
-        image_to_show.copyTo(temp_math);
-  //       cvtColor(image_to_show, temp_math, CV_BGR2GRAY);// cvtColor Makes a copt, that what i need
     QImage temp;
     if (image_to_show.channels()==3)
-        temp = QImage((uchar*) temp_math.data, temp_math.cols, temp_math.rows, temp_math.step, QImage::Format_RGB888);
+        temp = QImage((uchar*) image_to_show.data, image_to_show.cols, image_to_show.rows, image_to_show.step, QImage::Format_RGB888);
     else
-        temp = QImage((uchar*) temp_math.data, temp_math.cols, temp_math.rows, temp_math.step,  QImage::Format_Indexed8);
+        temp = QImage((uchar*) image_to_show.data, image_to_show.cols, image_to_show.rows, image_to_show.step,  QImage::Format_Indexed8);
     ui->lable_Image->setPixmap(QPixmap::fromImage(temp, Qt::AutoColor));
 }
