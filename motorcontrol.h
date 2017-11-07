@@ -30,6 +30,7 @@ public:
 
     device_t * Device;
     status_t * State;
+    bool stopThreadFlag;
     bool Ready;
     explicit Ctrl_loop(QObject *parent = 0);
     Ctrl_loop( device_t * D );
