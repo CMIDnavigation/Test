@@ -25,21 +25,18 @@ class MotorControl;
 class Ctrl_loop : public QObject
 {
     Q_OBJECT
+    QThread *hThread;
 public:
+
     device_t * Device;
     status_t * State;
     bool Ready;
     explicit Ctrl_loop(QObject *parent = 0);
-    Ctrl_loop( device_t * D )
-    {
-        State = new status_t;
-        Device = D;
-        Ready = true;
-    }
-    ~Ctrl_loop()
-    {
-        //
-    }
+    Ctrl_loop( device_t * D );
+    ~Ctrl_loop();
+    void stopThread();
+    void startThread();
+
 signals:
     void SendStatus(status_t * Status);
     void ConnectionError( void );

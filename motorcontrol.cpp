@@ -22,12 +22,38 @@ void Ctrl_loop::StartLoop(void)
         QThread::msleep(200);
     }
 }
+Ctrl_loop::Ctrl_loop( device_t * D )
+{
+    State = new status_t;
+    Device = D;
+    Ready = true;
+    hThread = new QThread(this);
+
+    connect(hThread, QThread::started, this, Ctrl_loop::StartLoop);
+
+    this->moveToThread(hThread);
+
+}
+Ctrl_loop::~Ctrl_loop()
+{
+    delete(hThread);
+    delete(State);
+}
 void Ctrl_loop::GetAngleFromCam(float Angle)
 {
     command_zero( *Device );
     int IntAngle = (int)(Angle*100);
     command_move( *Device, IntAngle, 0 );
     Ready = false;
+}
+
+void Ctrl_loop::stopThread()
+{
+    hThread->exit();
+}
+void Ctrl_loop::startThread()
+{
+    hThread->start();
 }
 MotorControl::MotorControl(QWidget *parent) :
     QWidget(parent),
@@ -41,17 +67,14 @@ MotorControl::MotorControl(QWidget *parent) :
     connect(this, NoMotorConnection,this, NoMotorConnectionProcess );
     connect(this, MotorConnectionOK,this, MotorConnectionOKProcess );
 
-    QThread *hThread = new QThread(this);
     ControlLoop = new Ctrl_loop( Device );
-    ControlLoop->moveToThread(hThread);
 
-    connect(hThread, QThread::started, ControlLoop, Ctrl_loop::StartLoop);
     connect(ControlLoop, Ctrl_loop::SendStatus, this, UpdateStatus );
     connect(this, MotorConnectionOK,this, MotorConnectionOKProcess );
     connect(ControlLoop, Ctrl_loop::ConnectionError, this, NoMotorConnection );
     connect(ControlLoop, Ctrl_loop::MoveDone, this, GetMoveDone );
     connect(this, SendAngleFromCam, ControlLoop, Ctrl_loop::GetAngleFromCam);
-    hThread->start();
+    ControlLoop->startThread();
 
     //Disable Internal log browser of Motor drive class
     ui->btnOpenLog->setVisible(false);
@@ -63,7 +86,11 @@ MotorControl::MotorControl(QWidget *parent) :
 }
 MotorControl::~MotorControl()
 {
+    ControlLoop->stopThread();
     command_stop( *Device );
+    delete(Device);
+    delete(ControlLoop);
+    delete(LogDialogBox);
     delete ui;
     delete LogBox;
 }
