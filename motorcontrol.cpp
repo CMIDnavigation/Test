@@ -1,6 +1,5 @@
 #include "motorcontrol.h"
 
-
 void Ctrl_loop::StartLoop(void)
 {
     while(stopThreadFlag == 0)
@@ -92,7 +91,6 @@ MotorControl::MotorControl(QWidget *parent) :
 }
 MotorControl::~MotorControl()
 {
-    //ControlLoop->stopThread();
     command_stop( *Device );
     delete(Device);
     delete(ControlLoop);
