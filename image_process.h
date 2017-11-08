@@ -24,9 +24,11 @@ public :
 private :
     cv::VideoCapture capture;
     enum state_thread{end_recv,get_pict,get_pict_and_count_angle}state_recv;
+    enum type_image_to_show{original,gray}image_show;
 public slots :
     void get_and_calc_pict();
     void stop_recv();
+    void change_type_foto(QString type_foto);
 private slots :
     float integral_intensity(const cv::Mat &Mat_to_count);
     void mat_to_pixmap(const cv::Mat &src);

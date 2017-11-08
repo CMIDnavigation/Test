@@ -12,21 +12,42 @@ image_recv::image_recv()
 void image_recv::get_and_calc_pict()
 {
       state_recv = get_pict;
+      if (!capture.isOpened())
+          return;
+
       while (state_recv != end_recv)
       {
       cv::Mat original;
       capture >> original;
 
+      switch (image_show)
+        case type_image_to_show::original :
       mat_to_pixmap(original);
       }
 
-//      if (capture.isOpened())
-//      capture.release();
+      if (capture.isOpened())
+      capture.release();
 }
 
 void image_recv::stop_recv()
 {
     state_recv = end_recv;
+}
+
+void image_recv::change_type_foto(QString type_foto)
+{
+    if (type_foto=="Оригинальный")
+        {image_show = original;return;}
+    if (type_foto=="Черно-белый")
+        {image_show = original;return;}
+        /*
+            ui->combo_type_pict->addItem("Черно-белый");
+            ui->combo_type_pict->addItem("После фильтра яркости");
+            ui->combo_type_pict->addItem("После расширения");
+            ui->combo_type_pict->addItem("После Канни");
+            ui->combo_type_pict->addItem("Черно-белый");
+            ui->combo_type_pict->addItem("Полигон");
+        */
 }
 
 float image_recv::integral_intensity(const Mat &Mat_to_count)
