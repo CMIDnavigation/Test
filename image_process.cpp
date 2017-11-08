@@ -6,7 +6,31 @@ using namespace cv;
 
 image_recv::get_and_calc_pict()
 {
-//    capture.release();
+      capture = VideoCapture(CV_CAP_ANY);
+      state_recv = get_pict;
+
+      while (state_recv != end_recv)
+      {
+      cvWaitKey(33);
+
+      }
+
+//      if (capture.isOpened())
+//      capture.release();
+}
+
+image_recv::stop_recv()
+{
+    state_recv = end_recv;
+}
+
+float image_recv::integral_intensity(const Mat &Mat_to_count)
+{
+    long double itt = 0;
+    for (int x = 0; x<Mat_to_count.rows;++x)
+        for (int y = 0; y<Mat_to_count.cols;++y)
+        itt+=Mat_to_count.at<unsigned char>(x,y);
+    return itt/(Mat_to_count.cols*Mat_to_count.rows);
 }
 
 
@@ -249,6 +273,11 @@ void image_process::slot_close()
     ui->chk_capture_image->setChecked(false);
 }
 
+void image_process::draw_pict()
+{
+    ui->lable_Image->setPixmap(*image);
+}
+
 
 
 void image_process::on_line_angle_editingFinished()
@@ -271,26 +300,26 @@ void image_process::on_slider_intesivity_valueChanged(int value)
     ui->value_intesiv->setText(QString::number(value/100));
 }
 
-/*
-void image_process::slot_mat_to_widget(Mat image_to_show)
-{
-    QImage temp;
-    if (image_to_show.channels()==3)
-        temp = QImage((uchar*) image_to_show.data, image_to_show.cols, image_to_show.rows, image_to_show.step, QImage::Format_RGB888);
-    else
-        temp = QImage((uchar*) image_to_show.data, image_to_show.cols, image_to_show.rows, image_to_show.step,  QImage::Format_Indexed8);
-    ui->lable_Image->setPixmap(QPixmap::fromImage(temp, Qt::AutoColor));
-}
-*/
-
 void image_process::start_thread()
 {
+    thread_pict = new QThread();
+    image_recv_object = new image_recv();
+    image_recv_object->moveToThread(thread_pict);
+
+    connect(thread_pict, SIGNAL(started()), image_recv_object, SLOT(get_and_calc_pict()));
+
+
+    thread_pict->start();
 
 }
 
 void image_process::stop_thread()
 {
-
+      image_recv_object->stop_recv();
+      thread_pict->quit();
+      thread_pict->wait();
+      delete thread_pict;
+      delete image_recv_object;
 }
 
 

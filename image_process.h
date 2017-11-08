@@ -11,23 +11,24 @@
 #include <QPixmap>
 #include <QImage>
 #include <QThread>
+#include <QMutex>
 
 
 class image_recv : public QObject
 {
     Q_OBJECT
 public :
-
+    QMutex pict_mutex;
 private :
     cv::VideoCapture capture;
     enum state_thread{end_recv,get_pict,get_pict_and_count_angle}state_recv;
-
-    cv::Mat original;
-    cv::Mat gray;
-    cv::Mat ufter_plus;
 public slots :
     get_and_calc_pict();
-
+    stop_recv();
+private slots :
+    float integral_intensity(const cv::Mat &Mat_to_count);
+signals :
+    draw_pict();
 };
 
 
@@ -54,19 +55,18 @@ private slots:
     void start_thread();
     void stop_thread();
 private:
-    QThread* threed_pict;
+    QThread* thread_pict;
     image_recv* image_recv_object;
     float need_andle = 0;
     bool flag_wait_answer = false;
     Ui::image_process *ui;
-
-    float integral_intensity(const cv::Mat &Mat_to_count);
+    QPixmap* image;
 public slots :
     void slot_command_to_motor();
     void slot_close();
+    void draw_pict();
 signals:
-    rotate_motor(float angle);
-
+    rotate_motor(float angle); 
 };
 
 #endif // IMAGE_PROCESS_H
