@@ -17,17 +17,79 @@ void image_recv::get_and_calc_pict()
 
       while (state_recv != end_recv)
       {
-      cv::Mat original;
+      Mat original;
       capture >> original;
 
-      switch (image_show)
-        case type_image_to_show::original :
-      mat_to_pixmap(original);
+      Mat gray;
+      cvtColor(original, gray, CV_RGB2GRAY);
+
+      Mat blur_and_treshhold;
+      blur(gray,blur_and_treshhold,Size(3,3),Point(-1,-1));
+      threshold(blur_and_treshhold, blur_and_treshhold,threshold_value,255,CV_THRESH_BINARY);
+
+      int radius = 1;
+      Mat element = getStructuringElement( CV_SHAPE_ELLIPSE,
+                                             Size( 2*radius + 1, 2*radius+1 ),
+                                             Point( radius, radius ));
+      Mat dilate_erade;
+      for (int i = 0; i<2;++i)
+      {
+      dilate(blur_and_treshhold, dilate_erade, element);
+      }
+      erode(dilate_erade, dilate_erade, element);
+
+      Mat Canny_image;
+      cv::Canny(dilate_erade, Canny_image, 1, 3, 3 );
+
+      vector<vector<Point>> contours;
+      vector<cv::Vec4i> hierarchy;
+
+      findContours( dilate_erade, contours, hierarchy, CV_RETR_LIST, CV_CHAIN_APPROX_NONE, Point(0, 0));
+
+      int num_max = 0; double s_max = 0;
+      for (unsigned int i = 0; i<contours.size();++i)
+           {
+           Size2f size_now = minAreaRect(contours[i]).size;
+           if (size_now.height*size_now.width>s_max)
+               {
+               num_max = i;
+               s_max = size_now.height*size_now.width;
+               }
+           }
+
+       if (contours.empty())
+           continue;
+
+       RotatedRect rect = cv::minAreaRect(contours[num_max]);
+       Point2f point_rect[4]; rect.points(point_rect);
+
+       cv::Point point_rect_to_draw[4];
+
+       for(int i = 0; i < 4; ++i)
+           {
+           point_rect_to_draw[i] = point_rect[i];
+           }
+
+       Mat find_polygon = Mat(gray.rows,gray.cols,CV_8UC1, Scalar(0,0,0));
+       fillConvexPoly(find_polygon, point_rect_to_draw, 4, Scalar(255,255,255));
+
+       switch (image_show)
+        {
+        case type_image_to_show::original : mat_to_pixmap(original);break;
+        case type_image_to_show::gray     : mat_to_pixmap(gray);break;
+        case type_image_to_show::ufter_treshhold : mat_to_pixmap(blur_and_treshhold);break;
+        case type_image_to_show::dilate_erade : mat_to_pixmap(dilate_erade);break;
+        case type_image_to_show::Canny : mat_to_pixmap(Canny_image);break;
+        case type_image_to_show::Poly : mat_to_pixmap(find_polygon);break;
+        }
+
+
       }
 
       if (capture.isOpened())
       capture.release();
 }
+
 
 void image_recv::stop_recv()
 {
@@ -39,7 +101,17 @@ void image_recv::change_type_foto(QString type_foto)
     if (type_foto=="Оригинальный")
         {image_show = original;return;}
     if (type_foto=="Черно-белый")
-        {image_show = original;return;}
+        {image_show = gray;return;}
+    if (type_foto=="После фильтра яркости")
+        {image_show = ufter_treshhold;return;}
+    if (type_foto=="После расширения")
+        {image_show = dilate_erade;return;}
+    if (type_foto=="После Канни")
+        {image_show = Canny;return;}
+    if (type_foto=="Полигон")
+        {image_show = Poly;return;}
+    if (type_foto=="Сложение с картинкой")
+        {image_show = Ufter_xor;return;}
         /*
             ui->combo_type_pict->addItem("Черно-белый");
             ui->combo_type_pict->addItem("После фильтра яркости");
@@ -48,6 +120,11 @@ void image_recv::change_type_foto(QString type_foto)
             ui->combo_type_pict->addItem("Черно-белый");
             ui->combo_type_pict->addItem("Полигон");
         */
+}
+
+void image_recv::change_intesivity(uchar intesiv)
+{
+    threshold_value = intesiv;
 }
 
 float image_recv::integral_intensity(const Mat &Mat_to_count)
@@ -80,20 +157,13 @@ image_process::image_process(QWidget *parent) :
 {
     ui->setupUi(this);
 
-//    capture = VideoCapture(CV_CAP_ANY);
-//    if (!capture.isOpened())
-//        ui->chk_capture_image->setEnabled(false);
-
-
-
-
     ui->combo_type_pict->addItem("Оригинальный");
     ui->combo_type_pict->addItem("Черно-белый");
     ui->combo_type_pict->addItem("После фильтра яркости");
     ui->combo_type_pict->addItem("После расширения");
     ui->combo_type_pict->addItem("После Канни");
-    ui->combo_type_pict->addItem("Черно-белый");
     ui->combo_type_pict->addItem("Полигон");
+    ui->combo_type_pict->addItem("Сложение с картинкой");
 }
 
 image_process::~image_process()
@@ -329,6 +399,7 @@ void image_process::on_line_angle_editingFinished()
 void image_process::on_slider_Y_valueChanged(int value)
 {
     ui->value_Y->setText(QString::number(value));
+    image_recv_object->change_intesivity(value);
 }
 
 void image_process::on_slider_intesivity_valueChanged(int value)
@@ -340,7 +411,9 @@ void image_process::start_thread()
 {
     thread_pict = new QThread();
     image_recv_object = new image_recv();
+    image_recv_object->change_type_foto(ui->combo_type_pict->currentText());
     image_recv_object->moveToThread(thread_pict);
+
 
     connect(thread_pict, SIGNAL(started()), image_recv_object, SLOT(get_and_calc_pict()));
     connect(image_recv_object, SIGNAL(draw_pict()),this, SLOT(draw_pict()));
@@ -360,3 +433,9 @@ void image_process::stop_thread()
 }
 
 
+
+void image_process::on_combo_type_pict_currentTextChanged(const QString &arg1)
+{
+    if (image_recv_object)
+    image_recv_object->change_type_foto(arg1);
+}

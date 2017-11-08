@@ -24,11 +24,13 @@ public :
 private :
     cv::VideoCapture capture;
     enum state_thread{end_recv,get_pict,get_pict_and_count_angle}state_recv;
-    enum type_image_to_show{original,gray}image_show;
+    enum type_image_to_show{original,gray,ufter_treshhold,dilate_erade,Canny,Poly,Ufter_xor}image_show;
+    uchar threshold_value = 45;
 public slots :
     void get_and_calc_pict();
     void stop_recv();
     void change_type_foto(QString type_foto);
+    void change_intesivity(uchar intesiv);
 private slots :
     float integral_intensity(const cv::Mat &Mat_to_count);
     void mat_to_pixmap(const cv::Mat &src);
@@ -59,9 +61,11 @@ private slots:
 //    void slot_mat_to_widget(cv::Mat image_to_show);
     void start_thread();
     void stop_thread();
+    void on_combo_type_pict_currentTextChanged(const QString &arg1);
+
 private:
     QThread* thread_pict;
-    image_recv* image_recv_object;
+    image_recv* image_recv_object =0;
     float need_andle = 0;
     bool flag_wait_answer = false;
     Ui::image_process *ui;    
