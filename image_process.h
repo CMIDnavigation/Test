@@ -29,7 +29,7 @@ public slots :
     void stop_recv();
 private slots :
     float integral_intensity(const cv::Mat &Mat_to_count);
-    QPixmap mat_to_pixmap(const cv::Mat &src);
+    void mat_to_pixmap(const cv::Mat &src);
 signals :
     draw_pict();
 };

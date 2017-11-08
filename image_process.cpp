@@ -37,14 +37,18 @@ float image_recv::integral_intensity(const Mat &Mat_to_count)
     return itt/(Mat_to_count.cols*Mat_to_count.rows);
 }
 
-QPixmap image_recv::mat_to_pixmap(const Mat &src)
+void image_recv::mat_to_pixmap(const Mat &src)
 {
+    mutex_pict.lock();
     QImage img;
     if (src.channels()==3)
         img = QImage((uchar*)(src.data), src.cols, src.rows, QImage::Format_RGB888);
     else
         img = QImage((uchar*)(src.data), src.cols, src.rows, QImage::Format_Indexed8);
-    return (QPixmap::fromImage(img));
+
+    if (total_pixmap) delete total_pixmap;
+    total_pixmap = new QPixmap(QPixmap::fromImage(img));
+    mutex_pict.unlock();
 }
 
 
@@ -53,6 +57,7 @@ image_process::image_process(QWidget *parent) :
     ui(new Ui::image_process)
 {
     ui->setupUi(this);
+    image = 0;
 //    capture = VideoCapture(CV_CAP_ANY);
 //    if (!capture.isOpened())
 //        ui->chk_capture_image->setEnabled(false);
@@ -73,6 +78,7 @@ image_process::~image_process()
 {
     if (ui->chk_capture_image->isChecked())
         stop_thread();
+    if (image) delete image;
     delete ui;
 }
 
