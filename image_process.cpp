@@ -12,6 +12,11 @@ image_process::image_process(QWidget *parent) :
     capture = VideoCapture(CV_CAP_ANY);
     if (!capture.isOpened())
         ui->chk_capture_image->setEnabled(false);
+    ui->combo_type_pict->addItem("Оригинальный");
+    ui->combo_type_pict->addItem("Черно-белый");
+    ui->combo_type_pict->addItem("После фильтра яркости");
+
+
 }
 
 image_process::~image_process()
@@ -54,7 +59,13 @@ void image_process::slot_cycle_get_images()
 void image_process::slot_get_and_calc_image()
 {
     capture>>original;
+    if (ui->combo_type_pict->currentText()=="Оригинальный")
+        slot_mat_to_widget(original);
+
     cvtColor(original, gray, CV_RGB2GRAY);
+    if (ui->combo_type_pict->currentText()=="Черно-белый")
+        slot_mat_to_widget(gray);
+
     ufter_plus = Mat(gray.rows,gray.cols,CV_8UC1, Scalar(0,0,0));
     cv::blur(gray,gray,cv::Size(3,3),cv::Point(-1,-1));
 
@@ -76,8 +87,12 @@ void image_process::slot_get_and_calc_image()
 
     Mat buffer1;//Буфферная зона1
     threshold(gray, buffer1,ui->slider_Y->value(),255,CV_THRESH_BINARY);
-    cvNamedWindow("ufter_treshhold", CV_WINDOW_AUTOSIZE);
-    imshow("ufter_treshhold",buffer1);
+
+    if (ui->combo_type_pict->currentText()=="После фильтра яркости")
+        slot_mat_to_widget(buffer1);
+
+//    cvNamedWindow("ufter_treshhold", CV_WINDOW_AUTOSIZE);
+//    imshow("ufter_treshhold",buffer1);
 
     for (int i = 0; i<2;++i)
     {
@@ -86,16 +101,10 @@ void image_process::slot_get_and_calc_image()
 
     Mat buffer2;//Буфферная зона2
     erode(ufter_plus, buffer2, element);
-    cvNamedWindow("ufter erode", CV_WINDOW_AUTOSIZE);
-    imshow("ufter erode",buffer2);
-
+//    cvNamedWindow("ufter erode", CV_WINDOW_AUTOSIZE);
+//    imshow("ufter erode",buffer2);
 
     erode(ufter_plus, ufter_plus, element);
-
-
-
-
-
 
     vector<vector<Point>> contours;
     vector<cv::Vec4i> hierarchy;
@@ -104,8 +113,8 @@ void image_process::slot_get_and_calc_image()
 
    Mat buffer3;//Буфферная зона3
    Canny( ufter_plus, buffer3, 1, 3, 3 );
-   cvNamedWindow("ufter Canny", CV_WINDOW_AUTOSIZE);
-   imshow("ufter Canny",buffer3);
+//   cvNamedWindow("ufter Canny", CV_WINDOW_AUTOSIZE);
+//   imshow("ufter Canny",buffer3);
 
 
 
@@ -137,15 +146,13 @@ void image_process::slot_get_and_calc_image()
 
     Mat buffer4 = Mat(gray.rows,gray.cols,CV_8UC1, Scalar(0,0,0));;//Буфферная зона3
     fillConvexPoly(buffer4, point_rect_to_draw, 4, Scalar(255,255,255));
-    cvNamedWindow("Poly", CV_WINDOW_AUTOSIZE);
-    imshow("Poly",buffer4);
+
+//    cvNamedWindow("Poly", CV_WINDOW_AUTOSIZE);
+//    imshow("Poly",buffer4);
 
 
     gray = Mat(gray.rows,gray.cols,CV_8UC1, Scalar(0,0,0));
     fillConvexPoly(gray, point_rect_to_draw, 4, Scalar(255,255,255));
-
-
-
 
 
     gray^=(~ufter_plus);
@@ -237,4 +244,14 @@ void image_process::on_slider_Y_valueChanged(int value)
 void image_process::on_slider_intesivity_valueChanged(int value)
 {
     ui->value_intesiv->setText(QString::number(value/100));
+}
+
+void image_process::slot_mat_to_widget(Mat image_to_show)
+{
+    QImage temp;
+    if (image_to_show.channels()==3)
+        temp = QImage((uchar*) image_to_show.data, image_to_show.cols, image_to_show.rows, image_to_show.step, QImage::Format_RGB888);
+    else
+        temp = QImage((uchar*) image_to_show.data, image_to_show.cols, image_to_show.rows, image_to_show.step,  QImage::Format_Indexed8);
+    ui->lable_Image->setPixmap(QPixmap::fromImage(temp, Qt::AutoColor));
 }
