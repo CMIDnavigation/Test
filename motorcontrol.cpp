@@ -142,23 +142,23 @@ void MotorControl::UpdateStatus(status_t * Status)
     if (Status->Flags & STATE_ERRD)
         ui->textBrowser->append("ERRD");
 
-    emit AppendTextToLog("Status update DONE" );
+    //emit AppendTextToLog("Status update DONE" );
 }
-void MotorControl::printStateToStr (QString string, status_t * state)
-{
-    string = " rpm: " + QString::number( state->CurSpeed );
-    string = string + "\n pos: " + QString::number( state->CurPosition );
-    string = string + "\n upwr: " + QString::number( state->Upwr );
-    string = string + "\n ipwr: " + QString::number( state->Ipwr );
-    string = string + "\n flags: " + QString::number( state->Flags );
-    string = string + "\n mvsts: " + QString::number( state->MvCmdSts );
-    if (state->Flags & STATE_ALARM)
-         string = string + "\nALARM!!!";
-    if (state->Flags & STATE_ERRC)
-        string = string + "\nERRC";
-    if (state->Flags & STATE_ERRD)
-        string = string + "\nERRD\n";
-}
+//void MotorControl::printStateToStr (QString string, status_t * state)
+//{
+//    string = " rpm: " + QString::number( state->CurSpeed );
+//    string = string + "\n pos: " + QString::number( state->CurPosition );
+//    string = string + "\n upwr: " + QString::number( state->Upwr );
+//    string = string + "\n ipwr: " + QString::number( state->Ipwr );
+//    string = string + "\n flags: " + QString::number( state->Flags );
+//    string = string + "\n mvsts: " + QString::number( state->MvCmdSts );
+//    if (state->Flags & STATE_ALARM)
+//         string = string + "\nALARM!!!";
+//    if (state->Flags & STATE_ERRC)
+//        string = string + "\nERRC";
+//    if (state->Flags & STATE_ERRD)
+//        string = string + "\nERRD\n";
+//}
 void XIMC_CALLCONV my_logging_callback(int loglevel, const wchar_t* message, void* user_data)
 {
     wchar_t wbuf[2048];
@@ -238,12 +238,13 @@ void MotorControl::InitMotorDrive()
     for (i = 0; i < names_count; ++i)
     {
         wprintf( L"device: %hs\n", get_device_name( devenum, i ) );
+        emit AppendTextToLog("device: " + QString::fromLocal8Bit( get_device_name( devenum, i ) ), "MOTOR" );
     }
 
     if (names_count == 0)
     {
-        emit NoMotorConnection();
         wprintf( L"No devices found\n" );
+        emit NoMotorConnection();
         return;
     }
     strcpy( device_name, get_device_name( devenum, 0 ) );

@@ -61,7 +61,7 @@ public:
     ~MotorControl();
 
     void InitMotorDrive();
-    void printStateToStr (QString string,  status_t* state);
+    //void printStateToStr (QString string,  status_t* state);
     const wchar_t * error_string (result_t result)
     {
         switch (result)
