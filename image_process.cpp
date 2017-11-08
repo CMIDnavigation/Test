@@ -4,19 +4,20 @@
 using namespace std;
 using namespace cv;
 
-image_recv::image_recv(QPixmap *total_pixmap):total_pixmap(total_pixmap)
+image_recv::image_recv()
 {
-
+    capture = VideoCapture(CV_CAP_ANY);
 }
 
 void image_recv::get_and_calc_pict()
 {
-      capture = VideoCapture(CV_CAP_ANY);
       state_recv = get_pict;
-
       while (state_recv != end_recv)
       {
-      cvWaitKey(33);
+      cv::Mat original;
+      capture >> original;
+
+      mat_to_pixmap(original);
       }
 
 //      if (capture.isOpened())
@@ -46,9 +47,9 @@ void image_recv::mat_to_pixmap(const Mat &src)
     else
         img = QImage((uchar*)(src.data), src.cols, src.rows, QImage::Format_Indexed8);
 
-    if (total_pixmap) delete total_pixmap;
-    total_pixmap = new QPixmap(QPixmap::fromImage(img));
+    image = QPixmap::fromImage(img);
     mutex_pict.unlock();
+    draw_pict();
 }
 
 
@@ -57,7 +58,7 @@ image_process::image_process(QWidget *parent) :
     ui(new Ui::image_process)
 {
     ui->setupUi(this);
-    image = 0;
+
 //    capture = VideoCapture(CV_CAP_ANY);
 //    if (!capture.isOpened())
 //        ui->chk_capture_image->setEnabled(false);
@@ -78,7 +79,6 @@ image_process::~image_process()
 {
     if (ui->chk_capture_image->isChecked())
         stop_thread();
-    if (image) delete image;
     delete ui;
 }
 
@@ -285,7 +285,12 @@ void image_process::slot_close()
 
 void image_process::draw_pict()
 {
-    ui->lable_Image->setPixmap(*image);
+    if (image_recv_object)
+        {
+        image_recv_object->mutex_pict.lock();
+        ui->lable_Image->setPixmap(image_recv_object->image);
+        image_recv_object->mutex_pict.unlock();
+        }
 }
 
 
@@ -313,11 +318,11 @@ void image_process::on_slider_intesivity_valueChanged(int value)
 void image_process::start_thread()
 {
     thread_pict = new QThread();
-    image_recv_object = new image_recv(image);
+    image_recv_object = new image_recv();
     image_recv_object->moveToThread(thread_pict);
 
     connect(thread_pict, SIGNAL(started()), image_recv_object, SLOT(get_and_calc_pict()));
-
+    connect(image_recv_object, SIGNAL(draw_pict()),this, SLOT(draw_pict()));
 
     thread_pict->start();
 
@@ -330,6 +335,7 @@ void image_process::stop_thread()
       thread_pict->wait();
       delete thread_pict;
       delete image_recv_object;
+      image_recv_object = 0;
 }
 
 

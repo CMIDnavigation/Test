@@ -18,10 +18,10 @@ class image_recv : public QObject
 {
     Q_OBJECT
 public :
-    image_recv(QPixmap *total_pixmap);
+    image_recv();
     QMutex mutex_pict;
+    QPixmap image;
 private :
-    QPixmap* total_pixmap;
     cv::VideoCapture capture;
     enum state_thread{end_recv,get_pict,get_pict_and_count_angle}state_recv;
 public slots :
@@ -62,8 +62,7 @@ private:
     image_recv* image_recv_object;
     float need_andle = 0;
     bool flag_wait_answer = false;
-    Ui::image_process *ui;
-    QPixmap* image;
+    Ui::image_process *ui;    
 public slots :
     void slot_command_to_motor();
     void slot_close();
