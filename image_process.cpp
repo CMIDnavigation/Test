@@ -4,14 +4,24 @@
 using namespace std;
 using namespace cv;
 
+image_recv::get_and_calc_pict()
+{
+//    capture.release();
+}
+
+
 image_process::image_process(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::image_process)
 {
     ui->setupUi(this);
-    capture = VideoCapture(CV_CAP_ANY);
-    if (!capture.isOpened())
-        ui->chk_capture_image->setEnabled(false);
+//    capture = VideoCapture(CV_CAP_ANY);
+//    if (!capture.isOpened())
+//        ui->chk_capture_image->setEnabled(false);
+
+
+
+
     ui->combo_type_pict->addItem("Оригинальный");
     ui->combo_type_pict->addItem("Черно-белый");
     ui->combo_type_pict->addItem("После фильтра яркости");
@@ -23,13 +33,14 @@ image_process::image_process(QWidget *parent) :
 
 image_process::~image_process()
 {
-    capture.release();
+    if (ui->chk_capture_image->isChecked())
+        stop_thread();
     delete ui;
 }
 
 
 
-
+/*
 void image_process::slot_cycle_get_images()
 {
     cvNamedWindow("original", CV_WINDOW_AUTOSIZE);
@@ -59,7 +70,9 @@ void image_process::slot_cycle_get_images()
     destroyWindow("Canny");
 
 }
+*/
 
+/*
 void image_process::slot_get_and_calc_image()
 {
     capture>>original;
@@ -202,18 +215,18 @@ void image_process::slot_get_and_calc_image()
         }
 
 }
-
+*/
 
 
 void image_process::on_chk_capture_image_stateChanged(int arg1)
 {
     if (arg1)
-        {
-        slot_cycle_get_images();
-        }
+        start_thread();
+    else
+        stop_thread();
 }
 
-
+/*
 float image_process::integral_intensity(const Mat &Mat_to_count)
 {
     long double itt = 0;
@@ -222,6 +235,7 @@ float image_process::integral_intensity(const Mat &Mat_to_count)
         itt+=Mat_to_count.at<unsigned char>(x,y);
     return itt/(Mat_to_count.cols*Mat_to_count.rows);
 }
+*/
 
 void image_process::slot_command_to_motor()
 {
@@ -257,6 +271,7 @@ void image_process::on_slider_intesivity_valueChanged(int value)
     ui->value_intesiv->setText(QString::number(value/100));
 }
 
+/*
 void image_process::slot_mat_to_widget(Mat image_to_show)
 {
     QImage temp;
@@ -266,3 +281,16 @@ void image_process::slot_mat_to_widget(Mat image_to_show)
         temp = QImage((uchar*) image_to_show.data, image_to_show.cols, image_to_show.rows, image_to_show.step,  QImage::Format_Indexed8);
     ui->lable_Image->setPixmap(QPixmap::fromImage(temp, Qt::AutoColor));
 }
+*/
+
+void image_process::start_thread()
+{
+
+}
+
+void image_process::stop_thread()
+{
+
+}
+
+
