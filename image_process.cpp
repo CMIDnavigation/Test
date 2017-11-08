@@ -4,7 +4,12 @@
 using namespace std;
 using namespace cv;
 
-image_recv::get_and_calc_pict()
+image_recv::image_recv(QPixmap *total_pixmap):total_pixmap(total_pixmap)
+{
+
+}
+
+void image_recv::get_and_calc_pict()
 {
       capture = VideoCapture(CV_CAP_ANY);
       state_recv = get_pict;
@@ -12,14 +17,13 @@ image_recv::get_and_calc_pict()
       while (state_recv != end_recv)
       {
       cvWaitKey(33);
-
       }
 
 //      if (capture.isOpened())
 //      capture.release();
 }
 
-image_recv::stop_recv()
+void image_recv::stop_recv()
 {
     state_recv = end_recv;
 }
@@ -31,6 +35,16 @@ float image_recv::integral_intensity(const Mat &Mat_to_count)
         for (int y = 0; y<Mat_to_count.cols;++y)
         itt+=Mat_to_count.at<unsigned char>(x,y);
     return itt/(Mat_to_count.cols*Mat_to_count.rows);
+}
+
+QPixmap image_recv::mat_to_pixmap(const Mat &src)
+{
+    QImage img;
+    if (src.channels()==3)
+        img = QImage((uchar*)(src.data), src.cols, src.rows, QImage::Format_RGB888);
+    else
+        img = QImage((uchar*)(src.data), src.cols, src.rows, QImage::Format_Indexed8);
+    return (QPixmap::fromImage(img));
 }
 
 
@@ -250,16 +264,6 @@ void image_process::on_chk_capture_image_stateChanged(int arg1)
         stop_thread();
 }
 
-/*
-float image_process::integral_intensity(const Mat &Mat_to_count)
-{
-    long double itt = 0;
-    for (int x = 0; x<Mat_to_count.rows;++x)
-        for (int y = 0; y<Mat_to_count.cols;++y)
-        itt+=Mat_to_count.at<unsigned char>(x,y);
-    return itt/(Mat_to_count.cols*Mat_to_count.rows);
-}
-*/
 
 void image_process::slot_command_to_motor()
 {
@@ -303,7 +307,7 @@ void image_process::on_slider_intesivity_valueChanged(int value)
 void image_process::start_thread()
 {
     thread_pict = new QThread();
-    image_recv_object = new image_recv();
+    image_recv_object = new image_recv(image);
     image_recv_object->moveToThread(thread_pict);
 
     connect(thread_pict, SIGNAL(started()), image_recv_object, SLOT(get_and_calc_pict()));

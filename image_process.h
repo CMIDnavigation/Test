@@ -18,15 +18,18 @@ class image_recv : public QObject
 {
     Q_OBJECT
 public :
-    QMutex pict_mutex;
+    image_recv(QPixmap *total_pixmap);
+    QMutex mutex_pict;
 private :
+    QPixmap* total_pixmap;
     cv::VideoCapture capture;
     enum state_thread{end_recv,get_pict,get_pict_and_count_angle}state_recv;
 public slots :
-    get_and_calc_pict();
-    stop_recv();
+    void get_and_calc_pict();
+    void stop_recv();
 private slots :
     float integral_intensity(const cv::Mat &Mat_to_count);
+    QPixmap mat_to_pixmap(const cv::Mat &src);
 signals :
     draw_pict();
 };
