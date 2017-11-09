@@ -31,9 +31,9 @@
       </widget>
      </item>
      <item>
-      <widget class="QCheckBox" name="check_correct_pos">
-       <property name="text">
-        <string>Корректировать позицию</string>
+      <widget class="QLineEdit" name="line_state">
+       <property name="enabled">
+        <bool>false</bool>
        </property>
       </widget>
      </item>
@@ -72,7 +72,7 @@
           <number>255</number>
          </property>
          <property name="value">
-          <number>18</number>
+          <number>20</number>
          </property>
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
@@ -82,7 +82,7 @@
        <item>
         <widget class="QLabel" name="value_Y">
          <property name="text">
-          <string>Значение</string>
+          <string>20</string>
          </property>
          <property name="alignment">
           <set>Qt::AlignCenter</set>
@@ -108,6 +108,9 @@
          <property name="maximum">
           <number>100</number>
          </property>
+         <property name="value">
+          <number>1</number>
+         </property>
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
          </property>
@@ -116,7 +119,7 @@
        <item>
         <widget class="QLabel" name="value_intesiv">
          <property name="text">
-          <string>Значение</string>
+          <string>1</string>
          </property>
          <property name="alignment">
           <set>Qt::AlignCenter</set>
@@ -126,7 +129,7 @@
       </layout>
      </item>
      <item>
-      <widget class="QDoubleSpinBox" name="spin_intensivity"/>
+      <widget class="QDoubleSpinBox" name="spin_error"/>
      </item>
     </layout>
    </item>

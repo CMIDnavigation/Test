@@ -23,14 +23,17 @@ public :
     QPixmap image;
 private :
     cv::VideoCapture capture;
-    enum state_thread{end_recv,pict_and_count_RGB,get_pict_and_count_angle}state_recv;
+    enum state_thread{end_recv,get_pict_find_green, get_pict_find_no_green, get_pict_count_angle,get_pict_wait}state_recv;
     enum type_image_to_show{original,gray,ufter_treshhold,dilate_erade,Canny,Poly,Ufter_xor}image_show;
-    uchar threshold_value = 45;
+    uchar threshold_intensiv = 20;
+    uchar threshold_work = 1;
 public slots :
     void get_and_calc_pict();
     void stop_recv();
     void change_type_foto(QString type_foto);
     void change_intesivity(uchar intesiv);
+    void change_error(uchar procent);
+    void begin_find_green();
 private slots :
     float integral_intensity(const cv::Mat &Mat_to_count);
     void count_RGB(const cv::Mat &Mat_to_count);
@@ -38,6 +41,9 @@ private slots :
 signals :
     intensiv_RGB(uchar R,uchar G, uchar B);
     draw_pict();
+    find_angle(float angle, int x, int y);
+    error_value(float value_error);
+    state_change(QString state);
 };
 
 
@@ -54,17 +60,13 @@ public:
     ~image_process();
 
 private slots:
-//    void slot_cycle_get_images();
-//    void slot_get_and_calc_image();
     void on_chk_capture_image_stateChanged(int arg1);
     void on_line_angle_editingFinished();
     void on_slider_Y_valueChanged(int value);
     void on_slider_intesivity_valueChanged(int value);
-//    void slot_mat_to_widget(cv::Mat image_to_show);
     void start_thread();
     void stop_thread();
     void on_combo_type_pict_currentTextChanged(const QString &arg1);
-
 private:
     QThread* thread_pict;
     image_recv* image_recv_object =0;
@@ -76,6 +78,9 @@ public slots :
     void slot_close();
     void draw_pict();
     void intensiv_recved(uchar R, uchar G, uchar B);
+    void angle_recved(float angle, int x, int y);
+    void state_changed(QString state);
+    void error_on_pict(float error);
 signals:
     rotate_motor(float angle); 
 };
