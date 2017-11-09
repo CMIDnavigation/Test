@@ -39,12 +39,12 @@ void image_recv::get_and_calc_pict()
       erode(dilate_erade, dilate_erade, element);
 
       Mat Canny_image;
-      cv::Canny(dilate_erade, Canny_image, 1, 3, 3 );
+      cv::Canny(dilate_erade, Canny_image,1, 3, 3);
 
       vector<vector<Point>> contours;
       vector<cv::Vec4i> hierarchy;
 
-      findContours( dilate_erade, contours, hierarchy, CV_RETR_LIST, CV_CHAIN_APPROX_NONE, Point(0, 0));
+      findContours( Canny_image, contours, hierarchy, CV_RETR_LIST, CV_CHAIN_APPROX_NONE, Point(0, 0));
 
       int num_max = 0; double s_max = 0;
       for (unsigned int i = 0; i<contours.size();++i)
@@ -72,6 +72,9 @@ void image_recv::get_and_calc_pict()
 
        Mat find_polygon = Mat(gray.rows,gray.cols,CV_8UC1, Scalar(0,0,0));
        fillConvexPoly(find_polygon, point_rect_to_draw, 4, Scalar(255,255,255));
+
+
+
 
        switch (image_show)
         {
