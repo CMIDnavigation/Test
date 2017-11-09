@@ -16,11 +16,64 @@
 
 #include "ximc.h"
 #include "ui_motorcontrol.h"
-#include "ui_logbox.h"
 
 namespace Ui {
 class MotorControl;
 }
+
+class Ui_Dialog
+{
+public:
+    QVBoxLayout *verticalLayout;
+    QTextBrowser *LogTextWindow;
+    QHBoxLayout *horizontalLayout_2;
+    QSpacerItem *horizontalSpacer;
+    QPushButton *btnExit;
+
+    void setupUi(QDialog *Dialog)
+    {
+        if (Dialog->objectName().isEmpty())
+            Dialog->setObjectName(QStringLiteral("Dialog"));
+        Dialog->resize(400, 300);
+        verticalLayout = new QVBoxLayout(Dialog);
+        verticalLayout->setObjectName(QStringLiteral("verticalLayout"));
+        LogTextWindow = new QTextBrowser(Dialog);
+        LogTextWindow->setObjectName(QStringLiteral("LogTextWindow"));
+
+        verticalLayout->addWidget(LogTextWindow);
+
+        horizontalLayout_2 = new QHBoxLayout();
+        horizontalLayout_2->setObjectName(QStringLiteral("horizontalLayout_2"));
+        horizontalSpacer = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+
+        horizontalLayout_2->addItem(horizontalSpacer);
+
+        btnExit = new QPushButton(Dialog);
+        btnExit->setObjectName(QStringLiteral("btnExit"));
+
+        horizontalLayout_2->addWidget(btnExit);
+
+
+        verticalLayout->addLayout(horizontalLayout_2);
+
+
+        retranslateUi(Dialog);
+
+        QMetaObject::connectSlotsByName(Dialog);
+    } // setupUi
+
+    void retranslateUi(QDialog *Dialog)
+    {
+        Dialog->setWindowTitle(QApplication::translate("Dialog", "Log browser", Q_NULLPTR));
+        btnExit->setText(QApplication::translate("Dialog", "Exit", Q_NULLPTR));
+    } // retranslateUi
+
+};
+
+namespace Ui {
+    class Dialog: public Ui_Dialog {};
+} // namespace Ui
+
 
 class Ctrl_loop : public QObject
 {
@@ -61,7 +114,7 @@ public:
     ~MotorControl();
 
     void InitMotorDrive();
-    void printStateToStr (QString string,  status_t* state);
+    //void printStateToStr (QString string,  status_t* state);
     const wchar_t * error_string (result_t result)
     {
         switch (result)
