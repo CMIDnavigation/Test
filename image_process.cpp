@@ -20,6 +20,8 @@ void image_recv::get_and_calc_pict()
       Mat original;
       capture >> original;
 
+      count_RGB(original);
+
       Mat gray;
       cvtColor(original, gray, CV_RGB2GRAY);
 
@@ -73,6 +75,7 @@ void image_recv::get_and_calc_pict()
        Mat find_polygon = Mat(gray.rows,gray.cols,CV_8UC1, Scalar(0,0,0));
        fillConvexPoly(find_polygon, point_rect_to_draw, 4, Scalar(255,255,255));
 
+       Mat Mat_xor = find_polygon^(~dilate_erade);
 
 
 
@@ -84,6 +87,7 @@ void image_recv::get_and_calc_pict()
         case type_image_to_show::dilate_erade : mat_to_pixmap(dilate_erade);break;
         case type_image_to_show::Canny : mat_to_pixmap(Canny_image);break;
         case type_image_to_show::Poly : mat_to_pixmap(find_polygon);break;
+        case type_image_to_show::Ufter_xor : mat_to_pixmap(Mat_xor);break;
         }
 
 
@@ -137,6 +141,24 @@ float image_recv::integral_intensity(const Mat &Mat_to_count)
         for (int y = 0; y<Mat_to_count.cols;++y)
         itt+=Mat_to_count.at<unsigned char>(x,y);
     return itt/(Mat_to_count.cols*Mat_to_count.rows);
+}
+
+void image_recv::count_RGB(const Mat &Mat_to_count)
+{
+    long unsigned int R = 0, G = 0, B = 0;
+
+    for (int x = 0; x<Mat_to_count.rows;++x)
+         for (int y = 0;y<Mat_to_count.cols;++y)
+            {
+            R += Mat_to_count.at<Vec3b>(x,y)[0];
+            G += Mat_to_count.at<Vec3b>(x,y)[1];
+            B += Mat_to_count.at<Vec3b>(x,y)[2];
+            }
+    R/= (Mat_to_count.rows*Mat_to_count.cols);
+    G/= (Mat_to_count.rows*Mat_to_count.cols);
+    B/= (Mat_to_count.rows*Mat_to_count.cols);
+
+    emit intensiv_RGB(R,G,B);
 }
 
 void image_recv::mat_to_pixmap(const Mat &src)
@@ -384,7 +406,14 @@ void image_process::draw_pict()
         image_recv_object->mutex_pict.lock();
         ui->lable_Image->setPixmap(image_recv_object->image);
         image_recv_object->mutex_pict.unlock();
-        }
+    }
+}
+
+void image_process::intensiv_recved(uchar R, uchar G, uchar B)
+{
+    ui->line_R->setText(QString::number(R));
+    ui->line_G->setText(QString::number(G));
+    ui->line_B->setText(QString::number(B));
 }
 
 
@@ -420,6 +449,7 @@ void image_process::start_thread()
 
     connect(thread_pict, SIGNAL(started()), image_recv_object, SLOT(get_and_calc_pict()));
     connect(image_recv_object, SIGNAL(draw_pict()),this, SLOT(draw_pict()));
+    connect(image_recv_object, SIGNAL(intensiv_RGB(uchar,uchar,uchar)),this, SLOT(intensiv_recved(uchar,uchar,uchar)));
 
     thread_pict->start();
 

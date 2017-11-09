@@ -33,8 +33,10 @@ public slots :
     void change_intesivity(uchar intesiv);
 private slots :
     float integral_intensity(const cv::Mat &Mat_to_count);
+    void count_RGB(const cv::Mat &Mat_to_count);
     void mat_to_pixmap(const cv::Mat &src);
 signals :
+    intensiv_RGB(uchar R,uchar G, uchar B);
     draw_pict();
 };
 
@@ -73,6 +75,7 @@ public slots :
     void slot_command_to_motor();
     void slot_close();
     void draw_pict();
+    void intensiv_recved(uchar R, uchar G, uchar B);
 signals:
     rotate_motor(float angle); 
 };
