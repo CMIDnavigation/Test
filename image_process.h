@@ -23,7 +23,7 @@ public :
     QPixmap image;
 private :
     cv::VideoCapture capture;
-    enum state_thread{end_recv,get_pict,get_pict_and_count_angle}state_recv;
+    enum state_thread{end_recv,pict_and_count_RGB,get_pict_and_count_angle}state_recv;
     enum type_image_to_show{original,gray,ufter_treshhold,dilate_erade,Canny,Poly,Ufter_xor}image_show;
     uchar threshold_value = 45;
 public slots :
