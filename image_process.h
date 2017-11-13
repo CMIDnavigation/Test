@@ -12,7 +12,8 @@
 #include <QImage>
 #include <QThread>
 #include <QMutex>
-
+#include <windows.h>
+#include <QCursor>
 
 class image_recv : public QObject
 {
@@ -43,7 +44,7 @@ signals :
     draw_pict();
     find_angle(float angle, int x, int y);
     error_value(float value_error);
-    state_change(QString state);
+    state_change(QString state);    
 };
 
 
@@ -67,6 +68,9 @@ private slots:
     void start_thread();
     void stop_thread();
     void on_combo_type_pict_currentTextChanged(const QString &arg1);
+    void on_btn_test_pressed();
+    void press_value(QString message);
+    void mouse_move_and_click(int x, int y);
 private:
     QThread* thread_pict;
     image_recv* image_recv_object =0;

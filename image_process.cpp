@@ -189,19 +189,9 @@ void image_recv::count_RGB(const Mat &Mat_to_count)
         }
 }
 
-void image_recv::mat_to_pixmap(const Mat &src)
-{
-    mutex_pict.lock();
-    QImage img;
-    if (src.channels()==3)
-        img = QImage((uchar*)(src.data), src.cols, src.rows, QImage::Format_RGB888);
-    else
-        img = QImage((uchar*)(src.data), src.cols, src.rows, QImage::Format_Indexed8);
 
-    image = QPixmap::fromImage(img);
-    mutex_pict.unlock();
-    draw_pict();
-}
+
+
 
 
 image_process::image_process(QWidget *parent) :
@@ -354,4 +344,77 @@ void image_process::on_combo_type_pict_currentTextChanged(const QString &arg1)
 {
     if (image_recv_object)
     image_recv_object->change_type_foto(arg1);
+}
+
+void image_process::on_btn_test_pressed()
+{
+//    this->hide();
+
+    QPoint pos_now = QCursor::pos();
+
+    mouse_move_and_click(290,410);
+    mouse_move_and_click(290,410);
+
+    press_value("100");
+    press_value("200");
+    press_value("1");
+
+    mouse_move_and_click(200,340);
+
+    this->show();
+
+    QCursor::setPos(pos_now);
+
+}
+
+void image_recv::mat_to_pixmap(const Mat &src)
+{
+    mutex_pict.lock();
+    QImage img;
+    if (src.channels()==3)
+        img = QImage((uchar*)(src.data), src.cols, src.rows, QImage::Format_RGB888);
+    else
+        img = QImage((uchar*)(src.data), src.cols, src.rows, QImage::Format_Indexed8);
+
+    image = QPixmap::fromImage(img);
+    mutex_pict.unlock();
+    draw_pict();
+}
+
+void image_process::press_value(QString message)
+{
+    for (int i = 0; i<message.size();++i)
+    {
+    char char_buffer =  message.toStdString()[i];
+    if (char_buffer == '.')
+    {
+        keybd_event(VK_DECIMAL, 0,0,0);
+        keybd_event(VK_DECIMAL, 0,KEYEVENTF_KEYUP,0);
+    }
+    else if (char_buffer == '-')
+        {
+        keybd_event(VK_SUBTRACT, 0,0,0);
+        keybd_event(VK_SUBTRACT, 0,KEYEVENTF_KEYUP,0);
+        }
+    else
+        {
+        keybd_event(char_buffer, 0,0,0);
+        keybd_event(char_buffer, 0,KEYEVENTF_KEYUP,0);
+        }
+    }
+    keybd_event(VK_RETURN, 0,0,0);
+    keybd_event(VK_RETURN, 0,KEYEVENTF_KEYUP,0);
+}
+
+void image_process::mouse_move_and_click(int x, int y)
+{
+    QCursor::setPos(x,y);
+    //SetCursorPos(x, y);
+    for (int i = 0; i<2; i++)
+    {
+    mouse_event(MOUSEEVENTF_LEFTDOWN, x, y, 0, 0);//нажатие левой кнопки мыши
+        Sleep(1);
+    mouse_event(MOUSEEVENTF_LEFTUP, x, y, 0, 0);//отпускание кнопки
+        Sleep(1);
+    }
 }
