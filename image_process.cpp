@@ -24,6 +24,9 @@ void image_recv::get_and_calc_pict()
       if ((state_recv == get_pict_find_green) || (state_recv == get_pict_find_no_green))
       count_RGB(original);
 
+      mat_to_pixmap(original);continue;
+
+
       Mat gray;
       cvtColor(original, gray, CV_RGB2GRAY);
 
@@ -155,7 +158,6 @@ void image_recv::change_error(uchar procent)
 void image_recv::begin_find_green()
 {
     state_recv = get_pict_find_green;
-    emit state_change("Поиск зеленого");
 }
 
 float image_recv::integral_intensity(const Mat &Mat_to_count)
@@ -174,9 +176,9 @@ void image_recv::count_RGB(const Mat &Mat_to_count)
     for (int x = 0; x<Mat_to_count.rows;++x)
          for (int y = 0;y<Mat_to_count.cols;++y)
             {
-            R += Mat_to_count.at<Vec3b>(x,y)[0];
+            R += Mat_to_count.at<Vec3b>(x,y)[2];
             G += Mat_to_count.at<Vec3b>(x,y)[1];
-            B += Mat_to_count.at<Vec3b>(x,y)[2];
+            B += Mat_to_count.at<Vec3b>(x,y)[0];
             }
     R/= (Mat_to_count.rows*Mat_to_count.cols);
     G/= (Mat_to_count.rows*Mat_to_count.cols);
@@ -184,6 +186,7 @@ void image_recv::count_RGB(const Mat &Mat_to_count)
 
     emit intensiv_RGB(R,G,B);
 
+    return;
     if (state_recv == get_pict_find_green && (G-(R+B)/2)>50)
         {
         state_recv = get_pict_find_no_green;
@@ -286,7 +289,7 @@ void image_process::angle_recved(float angle, float x, float y)
             }
         else
             {
-            image_recv_object->begin_find_green();
+
             QString x_val; x_val.setNum(x);
             QString y_val; y_val.setNum(y);
 
@@ -295,10 +298,11 @@ void image_process::angle_recved(float angle, float x, float y)
             QPoint pos_now = QCursor::pos();
 
             mouse_move_and_click(290,410);
+            mouse_move_and_click(290,410);
 
             press_value(x_val);
             press_value(y_val);
-            press_value("1");
+            press_value("0");
 
             mouse_move_and_click(200,340);
 
@@ -306,6 +310,8 @@ void image_process::angle_recved(float angle, float x, float y)
 
             QCursor::setPos(pos_now);
 
+            image_recv_object->begin_find_green();
+            state_changed("Поиск зеленого");
             }
         }
 }
