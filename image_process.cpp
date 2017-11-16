@@ -21,7 +21,7 @@ void image_recv::get_and_calc_pict()
       Mat original;
       capture >> original;
 
-      if (state_recv == get_pict_find_green || state_recv == get_pict_find_no_green)
+      if ((state_recv == get_pict_find_green) || (state_recv == get_pict_find_no_green))
       count_RGB(original);
 
       Mat gray;
@@ -85,10 +85,19 @@ void image_recv::get_and_calc_pict()
            if (error_value < threshold_work)
                 {
                 float angle = rect.angle;
-                emit find_angle(angle, 0, 0);
+                emit find_angle(angle, rect.center.x, rect.center.y);
+                emit state_change("Я посчиталь и отправил");
                 }
+           else
+               emit state_change("Слишком большая ошибка");
            }
-
+        else
+            {
+            if ((state_recv == get_pict_find_green)||(state_recv == get_pict_find_no_green))
+                {}
+            else
+                emit state_change("Странное состояние");
+            }
 
 
        switch (image_show)
@@ -257,13 +266,14 @@ void image_process::intensiv_recved(uchar R, uchar G, uchar B)
     ui->line_B->setText(QString::number(B));
 }
 
-void image_process::angle_recved(float angle, int x, int y)
+void image_process::angle_recved(float angle, float x, float y)
 {
     float now_angle = abs(angle);
     QString to_form; to_form.setNum(now_angle);
-    ui->lineEdit->setText(to_form);
+    ui->line_count_angle->setText(to_form);
 
     if (!flag_wait_answer)
+        {
         if (abs(need_andle - now_angle)>1.0)
             {
             flag_wait_answer = true;
@@ -272,7 +282,25 @@ void image_process::angle_recved(float angle, int x, int y)
         else
             {
             image_recv_object->begin_find_green();
+            QString x_val; x_val.setNum(x);
+            QString y_val; y_val.setNum(y);
+
+            QPoint pos_now = QCursor::pos();
+
+            mouse_move_and_click(290,410);
+
+            press_value(x_val);
+            press_value(y_val);
+            press_value("1");
+
+            mouse_move_and_click(200,340);
+
+            this->show();
+
+            QCursor::setPos(pos_now);
+
             }
+        }
 }
 
 void image_process::state_changed(QString state)
@@ -320,7 +348,7 @@ void image_process::start_thread()
     connect(thread_pict, SIGNAL(started()), image_recv_object, SLOT(get_and_calc_pict()));
     connect(image_recv_object, SIGNAL(draw_pict()),this, SLOT(draw_pict()));
     connect(image_recv_object, SIGNAL(intensiv_RGB(uchar,uchar,uchar)),this, SLOT(intensiv_recved(uchar,uchar,uchar)));
-    connect(image_recv_object, SIGNAL(find_angle(float,int,int)), this, SLOT(angle_recved(float,int,int)));
+    connect(image_recv_object, SIGNAL(find_angle(float,float,float)), this, SLOT(angle_recved(float,float,float)));
     connect(image_recv_object, SIGNAL(state_change(QString)), this, SLOT(state_changed(QString)));
     connect(image_recv_object, SIGNAL(error_value(float)), this, SLOT(error_on_pict(float)));
 
@@ -352,7 +380,6 @@ void image_process::on_btn_test_pressed()
 
     QPoint pos_now = QCursor::pos();
 
-    mouse_move_and_click(290,410);
     mouse_move_and_click(290,410);
 
     press_value("100");

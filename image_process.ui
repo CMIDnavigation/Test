@@ -38,7 +38,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QLineEdit" name="lineEdit">
+      <widget class="QLineEdit" name="line_count_angle">
        <property name="enabled">
         <bool>false</bool>
        </property>

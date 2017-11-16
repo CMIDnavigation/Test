@@ -42,7 +42,7 @@ private slots :
 signals :
     intensiv_RGB(uchar R,uchar G, uchar B);
     draw_pict();
-    find_angle(float angle, int x, int y);
+    find_angle(float angle, float x, float y);
     error_value(float value_error);
     state_change(QString state);    
 };
@@ -82,11 +82,12 @@ public slots :
     void slot_close();
     void draw_pict();
     void intensiv_recved(uchar R, uchar G, uchar B);
-    void angle_recved(float angle, int x, int y);
+    void angle_recved(float angle, float x, float y);
     void state_changed(QString state);
     void error_on_pict(float error);
 signals:
     rotate_motor(float angle); 
+    write_to_log(QString message, QString type);
 };
 
 #endif // IMAGE_PROCESS_H
