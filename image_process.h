@@ -24,7 +24,7 @@ public :
     QPixmap image;
 private :
     cv::VideoCapture capture;
-    enum state_thread{end_recv,get_pict_find_green, get_pict_find_no_green, get_pict_count_angle,get_pict_wait}state_recv;
+    enum state_thread{end_recv,get_pict_find_blue, get_pict_find_no_blue, get_pict_count_angle,get_pict_wait}state_recv;
     enum type_image_to_show{original,gray,ufter_treshhold,dilate_erade,Canny,Poly,Ufter_xor}image_show;
     uchar threshold_intensiv = 20;
     uchar threshold_work = 1;

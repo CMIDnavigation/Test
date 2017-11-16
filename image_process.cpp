@@ -11,7 +11,7 @@ image_recv::image_recv()
 
 void image_recv::get_and_calc_pict()
 {
-      state_recv = get_pict_find_green;
+      state_recv = get_pict_find_blue;
       if (!capture.isOpened())
           return;
 
@@ -21,11 +21,8 @@ void image_recv::get_and_calc_pict()
       Mat original;
       capture >> original;
 
-      if ((state_recv == get_pict_find_green) || (state_recv == get_pict_find_no_green))
+      if ((state_recv == get_pict_find_blue) || (state_recv == get_pict_find_no_blue))
       count_RGB(original);
-
-      mat_to_pixmap(original);continue;
-
 
       Mat gray;
       cvtColor(original, gray, CV_RGB2GRAY);
@@ -96,7 +93,7 @@ void image_recv::get_and_calc_pict()
            }
         else
             {
-            if ((state_recv == get_pict_find_green)||(state_recv == get_pict_find_no_green))
+            if ((state_recv == get_pict_find_blue)||(state_recv == get_pict_find_no_blue))
                 {}
             else
                 emit state_change("Странное состояние");
@@ -157,7 +154,7 @@ void image_recv::change_error(uchar procent)
 
 void image_recv::begin_find_green()
 {
-    state_recv = get_pict_find_green;
+    state_recv = get_pict_find_blue;
 }
 
 float image_recv::integral_intensity(const Mat &Mat_to_count)
@@ -186,14 +183,13 @@ void image_recv::count_RGB(const Mat &Mat_to_count)
 
     emit intensiv_RGB(R,G,B);
 
-    return;
-    if (state_recv == get_pict_find_green && (G-(R+B)/2)>50)
+    if (state_recv == get_pict_find_blue && B>170 && G<200 )
         {
-        state_recv = get_pict_find_no_green;
+        state_recv = get_pict_find_no_blue;
         emit state_change("Поиск отсутствия зеленого");
         return;
         }
-    if (state_recv == get_pict_find_no_green && (G-(R+B)/2)<50)
+    if (state_recv == get_pict_find_no_blue && B<100)
         {
         state_recv = get_pict_count_angle;
         emit state_change("Поиск и корректировка угла");
