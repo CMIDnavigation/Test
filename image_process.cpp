@@ -261,6 +261,9 @@ void image_process::draw_pict()
 
 void image_process::intensiv_recved(uchar R, uchar G, uchar B)
 {
+    write_to_log("count pict RGB "+
+                 QString::number(R)+" "+QString::number(G)+
+                 " "+QString::number(B), "pict");
     ui->line_R->setText(QString::number(R));
     ui->line_G->setText(QString::number(G));
     ui->line_B->setText(QString::number(B));
@@ -268,9 +271,11 @@ void image_process::intensiv_recved(uchar R, uchar G, uchar B)
 
 void image_process::angle_recved(float angle, float x, float y)
 {
+
     float now_angle = abs(angle);
     QString to_form; to_form.setNum(now_angle);
     ui->line_count_angle->setText(to_form);
+    write_to_log("angle count "+to_form, "pict");
 
     if (!flag_wait_answer)
         {
@@ -284,6 +289,8 @@ void image_process::angle_recved(float angle, float x, float y)
             image_recv_object->begin_find_green();
             QString x_val; x_val.setNum(x);
             QString y_val; y_val.setNum(y);
+
+            write_to_log("x y rect "+x_val+" "+y_val, "pict");
 
             QPoint pos_now = QCursor::pos();
 
@@ -305,6 +312,7 @@ void image_process::angle_recved(float angle, float x, float y)
 
 void image_process::state_changed(QString state)
 {
+    write_to_log("state changed "+state, "pict");
     ui->line_state->setText(state);
 }
 
@@ -339,6 +347,7 @@ void image_process::on_slider_intesivity_valueChanged(int value)
 
 void image_process::start_thread()
 {
+    emit write_to_log("begin thread recv","pict");
     thread_pict = new QThread();
     image_recv_object = new image_recv();
     image_recv_object->change_type_foto(ui->combo_type_pict->currentText());
@@ -358,12 +367,13 @@ void image_process::start_thread()
 
 void image_process::stop_thread()
 {
-      image_recv_object->stop_recv();
-      thread_pict->quit();
-      thread_pict->wait();
-      delete thread_pict;
-      delete image_recv_object;
-      image_recv_object = 0;
+    emit write_to_log("stop thread recv","pict");
+    image_recv_object->stop_recv();
+    thread_pict->quit();
+    thread_pict->wait();
+    delete thread_pict;
+    delete image_recv_object;
+    image_recv_object = 0;
 }
 
 
