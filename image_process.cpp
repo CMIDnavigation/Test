@@ -18,6 +18,7 @@ void image_recv::get_and_calc_pict()
       emit state_change("Поиск зеленого");
       while (state_recv != end_recv)
       {
+
       Mat original;
       capture >> original;
 
@@ -393,10 +394,11 @@ void image_process::on_btn_test_pressed()
     QPoint pos_now = QCursor::pos();
 
     mouse_move_and_click(290,410);
+    mouse_move_and_click(290,410);
 
     press_value("100");
     press_value("200");
-    press_value("1");
+    press_value("0");
 
     mouse_move_and_click(200,340);
 
